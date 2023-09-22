@@ -9,28 +9,28 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class Creator {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "creator_id")
+    private Long creatorId;
 
     private String nickName;
     private String address;
     private String phoneNumber;
     private String profileImageUrl;
-    // 권한
-    // private String authority;
     private String email;
     private String kakaoId;
     private String gender;
     private String birthDay;
-    private Long point;
+    private String profileComment;
+    private String verificationImageUrl;
+    // private Long point;
 
     @Builder
-    public User(Long userId, String nickName, String address, String phoneNumber, String profileImageUrl, String email, String kakaoId, String gender, String birthDay, Long point){
-        this.userId = userId;
+    public Creator(Long creatorId, String nickName, String address, String phoneNumber, String profileImageUrl, String email, String kakaoId, String gender, String birthDay, String profileComment, String verificationImageUrl){
+        this.creatorId = creatorId;
         this.nickName = nickName;
         this.address = address;
         this.phoneNumber = phoneNumber;
@@ -39,6 +39,7 @@ public class User {
         this.kakaoId = kakaoId;
         this.gender = gender;
         this.birthDay = birthDay;
-        this.point = point;
+        this.profileComment = profileComment;
+        this.verificationImageUrl = verificationImageUrl;
     }
 }
