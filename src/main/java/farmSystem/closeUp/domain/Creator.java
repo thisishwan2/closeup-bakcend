@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Creator {
+public class Creator extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +27,11 @@ public class Creator {
     private String profileComment;
     private String verificationImageUrl;
     // private Long point;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "platform_id")
+    private Platform platform;
+
 
     @Builder
     public Creator(Long creatorId, String nickName, String address, String phoneNumber, String profileImageUrl, String email, String kakaoId, String gender, String birthDay, String profileComment, String verificationImageUrl){

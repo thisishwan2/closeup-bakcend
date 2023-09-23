@@ -9,14 +9,15 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Raffle {
+public class Raffle extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "raffle_id")
     private Long raffleId;
 
-    private String raffleWhether;
+    @Enumerated(value = EnumType.STRING)
+    private WinningInfo winningInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "raffleProduct_id")
@@ -27,8 +28,8 @@ public class Raffle {
     private User user;
 
     @Builder
-    public Raffle(Long raffleId, String raffleWhether) {
+    public Raffle(Long raffleId, WinningInfo winningInfo) {
         this.raffleId = raffleId;
-        this.raffleWhether = raffleWhether;
+        this.winningInfo = winningInfo;
     }
 }

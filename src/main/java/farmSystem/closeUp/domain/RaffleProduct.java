@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RaffleProduct {
+public class RaffleProduct extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +25,6 @@ public class RaffleProduct {
     private String content;
     private Long winnerCount;
     private Long rafflePrice;
-    List<String> attachmentFile = new ArrayList<>();
     private String address;
     private String winningDate;
 
@@ -34,7 +33,7 @@ public class RaffleProduct {
     private Creator creator;
 
     @Builder
-    public RaffleProduct(Long raffleProductId, String title, String startDate, String endDate, String content, Long winnerCount, Long rafflePrice, List<String> attachmentFile, String address, String winningDate) {
+    public RaffleProduct(Long raffleProductId, String title, String startDate, String endDate, String content, Long winnerCount, Long rafflePrice, String address, String winningDate) {
         this.raffleProductId = raffleProductId;
         this.title = title;
         this.startDate = startDate;
@@ -42,7 +41,6 @@ public class RaffleProduct {
         this.content = content;
         this.winnerCount = winnerCount;
         this.rafflePrice = rafflePrice;
-        this.attachmentFile = attachmentFile;
         this.address = address;
         this.winningDate = winningDate;
     }
