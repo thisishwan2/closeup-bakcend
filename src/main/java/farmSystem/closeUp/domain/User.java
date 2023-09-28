@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter
@@ -15,30 +16,39 @@ public class User extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
-
     private String nickName;
     private String address;
     private String phoneNumber;
     private String profileImageUrl;
-    // 권한
-    // private String authority;
     private String email;
-    private String kakaoId;
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
+    @Enumerated(EnumType.STRING)
+    private SocialType socialType; // KAKAO, NAVER, GOOGLE
+    private String socialId; // 로그인한 소셜 타입의 식별자 값
     private String gender;
     private String birthDay;
     private Long point;
 
     @Builder
-    public User(Long userId, String nickName, String address, String phoneNumber, String profileImageUrl, String email, String kakaoId, String gender, String birthDay, Long point){
+    public User(Long userId, String nickName, String address, String phoneNumber, String profileImageUrl, String email, UserRole userRole,
+                SocialType socialType, String socialId, String gender, String birthDay, Long point){
         this.userId = userId;
         this.nickName = nickName;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.profileImageUrl = profileImageUrl;
         this.email = email;
-        this.kakaoId = kakaoId;
+        this.userRole = userRole;
+        this.socialType = socialType;
+        this.socialId = socialId;
         this.gender = gender;
         this.birthDay = birthDay;
         this.point = point;
+    }
+
+    // 유저 권한 설정 메소드
+    public void authorizeUser() {
+        this.userRole = UserRole.USER;
     }
 }
