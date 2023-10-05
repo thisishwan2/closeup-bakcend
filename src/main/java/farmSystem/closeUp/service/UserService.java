@@ -1,6 +1,6 @@
 package farmSystem.closeUp.service;
 
-import farmSystem.closeUp.config.security.SecurityUtils;
+import farmSystem.closeUp.config.SecurityUtils;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
