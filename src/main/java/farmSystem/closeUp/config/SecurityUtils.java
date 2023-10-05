@@ -1,4 +1,4 @@
-package farmSystem.closeUp.config.security;
+package farmSystem.closeUp.config;
 
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
