@@ -1,140 +1,122 @@
 package farmSystem.closeUp.config.jwt;
 
-import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.repository.UserRepository;
-import farmSystem.closeUp.service.UserService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Optional;
 
-/**
- * Jwt 인증 필터
- * "/login" 이외의 URI 요청이 왔을 때 처리하는 필터
- *
- * 기본적으로 사용자는 요청 헤더에 AccessToken만 담아서 요청
- * AccessToken 만료 시에만 RefreshToken을 요청 헤더에 AccessToken과 함께 요청
- *
- * 1. RefreshToken이 헤더에 없고, AccessToken이 유효한 경우(헤더에 Access만 보낸것) -> 인증 성공 처리
- * 2. RefreshToken이 없고, AccessToken이 없거나 유효하지 않은 경우 -> 인증 실패 처리, 403 ERROR
- * 3. AccessToken은 만료되고, RefreshToken이 있는 경우 -> Redis에서 RefreshToken과 비교하여 일치하면 AccessToken 재발급, RefreshToken 재발급(RTR 방식)
- *                              인증 성공 처리는 하지 않고 실패 처리
- *
- */
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-    private static final String NO_CHECK_URL = "/login"; // "/login"으로 들어오는 요청은 Filter 작동 X
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final UserService userService;
-    private final RedisUtils redisUtils;
-
-    // Spring security에서 인증 객체로 부터의 권한을 있는 그대로 반환하거나, 권한이 없는 경우 기본값으로 사용함.
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return request.getRequestURI().contains("/main") || request.getRequestURI().contains("/login-success") || request.getRequestURI().contains("/login");
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        if (request.getRequestURI().equals(NO_CHECK_URL)) {
-            filterChain.doFilter(request, response); // "/login" 요청이 들어오면, 다음 필터 호출
-            return; // return으로 아래의 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
-        }
+        log.info("JwtAuthFilter 동작");
 
-        // 사용자 요청 헤더에서 RefreshToken 추출
-        // -> RefreshToken이 없거나 유효하지 않다면 null을 반환
-        // 사용자의 요청 헤더에 RefreshToken이 있는 경우는, AccessToken이 만료되어 요청한 경우밖에 없다.
-        // 위의 경우를 제외하면 추출한 refreshToken은 모두 null
         String refreshToken = jwtService.extractRefreshToken(request)
                 .filter(jwtService::validateToken)
                 .orElse(null);
 
-        // 리프레시 토큰이 요청 헤더에 존재했다면, 사용자가 AccessToken이 만료되어서
-        // RefreshToken까지 보낸 것이므로 리프레시 토큰이 Redis와 일치하는지 판단 후,
-        // 일치한다면 AccessToken과 RefreshToken을 재발급해준다.(RTR 방식)
-        if (refreshToken != null) {
-            checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
-            return; // RefreshToken을 보낸 경우에는 AccessToken을 재발급 하고 인증 처리는 하지 않게 하기위해 바로 return으로 필터 진행 막기
+//        // 리프레시 토큰이 요청 헤더에 존재했다면, 사용자가 AccessToken이 만료되어서
+//        // RefreshToken까지 보낸 것이므로 리프레시 토큰이 DB의 리프레시 토큰과 일치하는지 판단 후,
+//        // 일치한다면 AccessToken을 재발급해준다.
+//        if (refreshToken != null) {
+//            checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
+//            return; // RefreshToken을 보낸 경우에는 AccessToken을 재발급 하고 인증 처리는 하지 않게 하기위해 바로 return으로 필터 진행 막기
+//        }
+//
+//        // RefreshToken이 없거나 유효하지 않다면, AccessToken을 검사하고 인증을 처리하는 로직 수행
+//        // AccessToken이 없거나 유효하지 않다면, 인증 객체가 담기지 않은 상태로 다음 필터로 넘어가기 때문에 403 에러 발생
+//        // AccessToken이 유효하다면, 인증 객체가 담긴 상태로 다음 필터로 넘어가기 때문에 인증 성공
+//        if (refreshToken == null) {
+//            checkAccessTokenAndAuthentication(request, response, filterChain);
+//        }
+
+        //accessToken 꺼내기
+        String accessToken = jwtService.extractAccessToken(request).get();
+        log.info("accesstoken = "+accessToken);
+        String requestURI = request.getRequestURI();
+
+        // 토큰 검사 생략(permitall URL의 경우 토큰 검사 통과)
+        if (!StringUtils.hasText(accessToken)) {
+            doFilter(request, response, filterChain);
+            return;
         }
 
-        // RefreshToken이 없거나 유효하지 않다면, AccessToken을 검사하고 인증을 처리하는 로직 수행
-        // AccessToken이 없거나 유효하지 않다면, 인증 객체가 담기지 않은 상태로 다음 필터로 넘어가기 때문에 403 에러 발생
-        // AccessToken이 유효하다면, 인증 객체가 담긴 상태로 다음 필터로 넘어가기 때문에 인증 성공
-        if (refreshToken == null) {
+        if(!jwtService.validateToken(accessToken)){
+            log.info("유효한 JWT 토큰이 없습니다, uri {}", requestURI);
+            throw new JwtException("토큰이 없답니당");
+        }
+
+        // 토큰 존재 및 유효성 검증
+        if (jwtService.validateToken(accessToken)) {
             checkAccessTokenAndAuthentication(request, response, filterChain);
         }
 
-
-    }
-
-    /**
-     * [액세스 토큰 체크 & 인증 처리 메소드]
-     * request에서 extractAccessToken()으로 액세스 토큰 추출 후, isTokenValid()로 유효한 토큰인지 검증
-     * 유효한 토큰이면, 액세스 토큰에서 getUserId로 userId 추출한 후 findById()로 해당 id을 사용하는 유저 객체 반환
-     * 그 유저 객체를 saveAuthentication()으로 인증 처리하여
-     * 인증 허가 처리된 객체를 SecurityContextHolder에 담기
-     * 그 후 다음 인증 필터로 진행
-     */
-    private void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("checkAccessTokenAndAuthentication() 호출");
-        Optional<String> accessTokenOptional = jwtService.extractAccessToken(request);
-        // 액세스 토큰이 존재하고 유효한 경우
-        if (accessTokenOptional.isPresent() && jwtService.validateToken(accessTokenOptional.get())) {
-            String accessToken = accessTokenOptional.get();
-            Long userId = jwtService.getUserId(accessToken);
-
-            Optional<User> userIdOptional = userRepository.findById(userId);
-            if (userIdOptional.isPresent()) {
-                User user = userIdOptional.get();
-                saveAuthentication(user); // 해당 회원 인증처리 및 SecurityContextHolder 담기
-            }
-
-            filterChain.doFilter(request, response);
-        }
+        filterChain.doFilter(request, response);
     }
 
     /**
      *  [리프레시 토큰으로 유저 정보 찾기 & 액세스 토큰/리프레시 토큰 재발급 메소드]
-     *  파라미터로 들어온 헤더에서 추출한 리프레시 토큰으로 redis에서 유저를 찾고, 해당 유저가 있다면
+     *  파라미터로 들어온 헤더에서 추출한 리프레시 토큰으로 DB에서 유저를 찾고, 해당 유저가 있다면
      *  JwtService.createAccessToken()으로 AccessToken 생성,
      *  reIssueRefreshToken()로 리프레시 토큰 재발급 & DB에 리프레시 토큰 업데이트 메소드 호출
      *  그 후 JwtService.sendAccessTokenAndRefreshToken()으로 응답 헤더에 보내기
      */
-    private void checkRefreshTokenAndReIssueAccessToken (HttpServletResponse response, String refreshToken){
-        Long userId = userService.getCurrentUserId();//RefreshToken의 Key
-        User user = userService.getCurrentUser();
-        String email = user.getEmail();
-        if (refreshToken.equals(redisUtils.getData(userId.toString()))) {
-            String accessToken = jwtService.createAccessToken(userId, email);
-            String newRefreshToken = jwtService.createRefreshToken(userId); // 이 부분에서 재발급 및 redis 저장 수행
+//    public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) {
+//        userRepository.findByRefreshToken(refreshToken)
+//                .ifPresent(user -> {
+//                    String reIssuedRefreshToken = jwtService.createRefreshToken();
+//                    jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.),
+//                            reIssuedRefreshToken);
+//                });
+//    }
 
-            //기존의 RefreshToken은 삭제
-            redisUtils.deleteData(userId.toString());
 
-            // 헤더에 실어 보내기
-            jwtService.sendAccessAndRefreshToken(response, accessToken, newRefreshToken);
+    /**
+     * [액세스 토큰 체크 & 인증 처리 메소드]
+     * request에서 extractAccessToken()으로 액세스 토큰 추출 후, isTokenValid()로 유효한 토큰인지 검증
+     * 유효한 토큰이면, 액세스 토큰에서 extractEmail로 Email을 추출한 후 findByEmail()로 해당 이메일을 사용하는 유저 객체 반환
+     * 그 유저 객체를 saveAuthentication()으로 인증 처리하여
+     * 인증 허가 처리된 객체를 SecurityContextHolder에 담기
+     * 그 후 다음 인증 필터로 진행
+     */
+    public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                                  FilterChain filterChain) throws ServletException, IOException {
+        log.info("checkAccessTokenAndAuthentication() 호출");
+        jwtService.extractAccessToken(request)
+                .filter(jwtService::validateToken)
+                .ifPresent(accessToken -> jwtService.getUserEmail(accessToken)
+                        .ifPresent(email -> userRepository.findByEmail(email)
+                                .ifPresent(this::saveAuthentication)));
 
-            //body에 실어서 보낼거면 리턴값 설정
-
-        }
+        filterChain.doFilter(request, response);
     }
-
 
     /**
      * [인증 허가 메소드]
@@ -151,16 +133,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * SecurityContextHolder.getContext()로 SecurityContext를 꺼낸 후,
      * setAuthentication()을 이용하여 위에서 만든 Authentication 객체에 대한 인증 허가 처리
      */
-    private void saveAuthentication (User user){
-        String password = user.getPassword();
+    public void saveAuthentication(User myUser) {
+        String password = myUser.getPassword();
         if (password == null) { // 소셜 로그인 유저의 비밀번호 임의로 설정 하여 소셜 로그인 유저도 인증 되도록 설정
             password = PasswordUtil.generateRandomPassword();
         }
 
         UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
-                .username(String.valueOf(user.getUserId()))
+                .username(myUser.getEmail())
                 .password(password)
-                .roles(user.getUserRole().name())
+                .roles(String.valueOf(myUser.getUserRole().GUEST))
                 .build();
 
         Authentication authentication =
@@ -168,5 +150,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         authoritiesMapper.mapAuthorities(userDetailsUser.getAuthorities()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
+        log.info("인증객체 저장");
+    }
 }
