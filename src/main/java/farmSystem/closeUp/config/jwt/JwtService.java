@@ -24,20 +24,23 @@ import java.util.Optional;
 @Slf4j
 public class JwtService {
 
-    @Value("${jwt.token.secret-key}")
+    @Value("${jwt.secretKey}")
     private String secretKey;
-    @Value("${jwt.access-token.expiration}")
+
+    @Value("${jwt.access.expiration}")
     private Long accessTokenExpirationPeriod;
-    @Value("${jwt.refresh-token.expiration}")
+
+    @Value("${jwt.refresh.expiration}")
     private Long refreshTokenExpirationPeriod;
-    @Value("${jwt.access-token.header}")
+
+    @Value("${jwt.access.header}")
     private String accessHeader;
-    @Value("${jwt.refresh-token.header}")
+
+    @Value("${jwt.refresh.header}")
     private String refreshHeader;
 
-    private final UserRepository userRepository;
-    private final RedisUtils redisUtils;
     private Key key;
+    private final RedisUtils redisUtils;
 
     /**
      * JWT의 Subject와 Claim으로 email 사용 -> 클레임의 name을 "email"으로 설정
@@ -47,6 +50,8 @@ public class JwtService {
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
     private static final String EMAIL_CLAIM = "email";
     private static final String BEARER = "Bearer ";
+
+    private final UserRepository userRepository;
 
 
     // 객체 초기화, secretKey를 Base64로 인코딩한다.
@@ -59,12 +64,11 @@ public class JwtService {
     /**
      * AccessToken 생성 메소드
      */
-    public String createAccessToken(Long userId, String email) {
-        Date now = new Date();
+    public String createAccessToken(String email) {
+        long now = new Date().getTime();
         String accessToken = Jwts.builder()
-                .setSubject(userId.toString())
                 .claim(EMAIL_CLAIM, email)
-                .setExpiration(new Date(now.getTime() + accessTokenExpirationPeriod))
+                .setExpiration(new Date(now + accessTokenExpirationPeriod))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -75,10 +79,9 @@ public class JwtService {
      * RefreshToken 생성
      */
     public String createRefreshToken(Long userId) {
-        Date now = new Date();
+        long now = new Date().getTime();
         String refreshToken = Jwts.builder()
-                .setSubject(userId.toString())
-                .setExpiration(new Date(now.getTime() + accessTokenExpirationPeriod))
+                .setExpiration(new Date(now + refreshTokenExpirationPeriod))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -142,8 +145,9 @@ public class JwtService {
     }
 
     // 토큰으로 회원 이메일 정보 조회
-    public String getUserEmail(String token) {
-        return (String) Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get(EMAIL_CLAIM);
+    public Optional<String> getUserEmail(String token) {
+        String email = (String) Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get(EMAIL_CLAIM);
+        return Optional.ofNullable(email);
     }
 
     //유효성 검증
@@ -176,37 +180,4 @@ public class JwtService {
         return (expiration.getTime() - now);
     }
 
-    // access Token 재발급(재발급은 accessToken이 만료 되기 직전에 실행됨)
-    /*
-    public String reissue(UserRequest.reissue request){
-
-        // 1. refresh token 검증
-        validateToken(request.getRefreshToken());
-
-        // 2. access token에서 userId(setSubject) 가져오기
-        Authentication authentication = getAuthentication(request.getAccessToken());
-
-        // 3. redis에서 userId 기반 저장된 refresh token 값을 가져옴.
-        String refreshToken = redisUtil.getData(authentication.getName());
-        if(!refreshToken.equals(request.getRefreshToken())){
-            throw new CustomException(Result.INVALID_REFRESH_TOKEN);
-        }
-
-        // 로그아웃시 redis에 refresh token이 존재하지 않는 경우 처리
-        if(ObjectUtils.isEmpty(refreshToken)){
-            throw new CustomException(Result.BAD_REQUEST);
-        }
-        if(!refreshToken.equals(request.getRefreshToken())) {
-            throw new CustomException(Result.INVALID_REFRESH_TOKEN);
-        }
-
-        // 4. 새로운 access token 생성
-        String accessToken = createToken(Long.valueOf(authentication.getName()), authentication);
-
-        // 5. refresh token redis 업데이트
-        redisUtil.setDataExpire(authentication.getName(), accessToken, this.refreshTokenValidTime);
-
-        return accessToken;
-    }
-    */
 }
