@@ -6,6 +6,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.Arrays;
+
 @Configuration
 public class CorsConfig {
 
@@ -21,7 +23,8 @@ public class CorsConfig {
         config.addAllowedMethod("*");
         config.setAllowCredentials(true);
 
-        source.registerCorsConfiguration("/**", config);
+        config.setExposedHeaders(Arrays.asList("Authorization", "Authorization-refresh"));
+        source.registerCorsConfiguration("/**", config); // 모든 Url에 대해 설정한 CorsConfiguration 등록
         return new CorsFilter(source);
     }
 }
