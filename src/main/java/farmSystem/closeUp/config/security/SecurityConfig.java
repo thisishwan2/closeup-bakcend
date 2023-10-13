@@ -8,7 +8,9 @@ import farmSystem.closeUp.config.oauth.handler.OAuth2LoginFailureHandler;
 import farmSystem.closeUp.config.oauth.handler.OAuth2LoginSuccessHandler;
 import farmSystem.closeUp.config.oauth.CustomOAuth2UserService;
 
+import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.repository.UserRepository;
+import farmSystem.closeUp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +34,8 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+    private final RedisUtils redisUtils;
+    private final UserService userService;
 
 
 
@@ -50,7 +54,7 @@ public class SecurityConfig {
 
                 // 특정 URL에 대한 권한 설정
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/main","/login-success", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
+                        .requestMatchers("/main","/login-success","/reissue", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
                         .requestMatchers("/user/**").hasRole("USER")
                         .requestMatchers("/creator/**").hasRole("CREATOR")
                     .anyRequest().authenticated()
@@ -77,7 +81,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, userRepository);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, userRepository,redisUtils,userService);
         return jwtAuthenticationFilter;
     }
 }
