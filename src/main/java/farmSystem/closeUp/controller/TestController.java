@@ -1,6 +1,9 @@
 package farmSystem.closeUp.controller;
 
+import farmSystem.closeUp.domain.User;
+import farmSystem.closeUp.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,7 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 public class TestController {
+
+    private final UserService userService;
 
     @GetMapping("/main")
     public String main(){
@@ -16,9 +22,10 @@ public class TestController {
     }
 
     @GetMapping("/jwt-test")
-    public String jwtTest(){
+    public User jwtTest() throws Exception {
         log.info("success test");
-        return "jwt";
+        User currentUser = userService.getCurrentUser();
+        return currentUser;
     }
 
     @GetMapping("/login")
