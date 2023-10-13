@@ -1,5 +1,7 @@
 package farmSystem.closeUp.config.jwt;
 
+import farmSystem.closeUp.common.CustomException;
+import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.repository.UserRepository;
 import io.jsonwebtoken.*;
@@ -64,10 +66,10 @@ public class JwtService {
     /**
      * AccessToken 생성 메소드
      */
-    public String createAccessToken(String email) {
+    public String createAccessToken(Long userId) {
         long now = new Date().getTime();
         String accessToken = Jwts.builder()
-                .claim(EMAIL_CLAIM, email)
+                .claim("userId", userId)
                 .setExpiration(new Date(now + accessTokenExpirationPeriod))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -81,11 +83,12 @@ public class JwtService {
     public String createRefreshToken(Long userId) {
         long now = new Date().getTime();
         String refreshToken = Jwts.builder()
+                .claim("userId", userId)
                 .setExpiration(new Date(now + refreshTokenExpirationPeriod))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        redisUtils.setData(userId.toString(), refreshToken, refreshTokenExpirationPeriod); // redis에 userId:refreshToken 형태로 저장
+        redisUtils.setData(String.valueOf(userId), refreshToken, refreshTokenExpirationPeriod); // redis에 userId:refreshToken 형태로 저장
         return refreshToken;
     }
 
@@ -111,21 +114,14 @@ public class JwtService {
     }
 
     /**
-     * RefreshToken (업데이트)
-     */
-    public void updateRefreshToken(Long userId, String refreshToken) {
-        redisUtils.setData(String.valueOf(userId), refreshToken, refreshTokenExpirationPeriod);
-    }
-
-    /**
      * 클라이언트 요청 헤더에서 AccessToken 추출
      * 토큰 형식 : Bearer XXX에서 Bearer를 제외하고 순수 토큰만 가져오기 위해서
      * 헤더를 가져온 후 "Bearer"를 삭제(""로 replace)
      */
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(accessHeader))
-                .filter(refreshToken -> refreshToken.startsWith(BEARER))
-                .map(refreshToken -> refreshToken.replace(BEARER, ""));
+                .filter(accessToken -> accessToken.startsWith(BEARER))
+                .map(accessToken -> accessToken.replace(BEARER, ""));
     }
 
     /**
@@ -139,9 +135,19 @@ public class JwtService {
                 .map(refreshToken -> refreshToken.replace(BEARER, ""));
     }
 
+    // "Bearer " 부분을 제거
+    public String extractToken(String token){
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        return token;
+    }
+
+
     // 토큰으로 회원 아이디 정보 조회
-    public Long getUserId(String token) {
-        return Long.valueOf(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject());
+    public Optional<Long> getUserId(String token) {
+        Long userId = Long.valueOf(String.valueOf(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("userId")));
+        return Optional.ofNullable(userId);
     }
 
     // 토큰으로 회원 이메일 정보 조회
@@ -159,6 +165,7 @@ public class JwtService {
             log.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");
+            throw new CustomException(Result.ACCESS_TOKEN_EXPIRED);
         } catch (UnsupportedJwtException e) {
             log.info("지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
