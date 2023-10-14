@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter
@@ -17,6 +16,7 @@ public class User extends BaseEntity{
     @Column(name = "user_id")
     private Long userId;
     private String nickName;
+    private String password;
     private String address;
     private String phoneNumber;
     private String profileImageUrl;
@@ -31,10 +31,11 @@ public class User extends BaseEntity{
     private Long point;
 
     @Builder
-    public User(Long userId, String nickName, String address, String phoneNumber, String profileImageUrl, String email, UserRole userRole,
+    public User(Long userId, String nickName, String address, String phoneNumber, String profileImageUrl, String email, UserRole userRole, String password,
                 SocialType socialType, String socialId, String gender, String birthDay, Long point){
         this.userId = userId;
         this.nickName = nickName;
+        this.password = password;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.profileImageUrl = profileImageUrl;
