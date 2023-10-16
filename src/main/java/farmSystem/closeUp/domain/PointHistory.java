@@ -24,7 +24,7 @@ public class PointHistory extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private User user; //일반 유저, 크리에이터
 
     @Builder
     public PointHistory(Long pointHistoryId, Long balancePoint, Long plusPoint, Long minusPoint, String raffleTitle, String pointEventAt){
