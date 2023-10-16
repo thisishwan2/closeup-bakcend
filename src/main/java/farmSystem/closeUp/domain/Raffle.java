@@ -25,7 +25,7 @@ public class Raffle extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private User user; //일반 유저
 
     @Builder
     public Raffle(Long raffleId, WinningInfo winningInfo) {

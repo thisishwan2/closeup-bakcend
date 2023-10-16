@@ -29,8 +29,8 @@ public class RaffleProduct extends BaseEntity{
     private String winningDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="creator_id")
-    private Creator creator;
+    @JoinColumn(name="user_id")
+    private User creator; //크리에이터
 
     @Builder
     public RaffleProduct(Long raffleProductId, String title, String startDate, String endDate, String content, Long winnerCount, Long rafflePrice, String address, String winningDate) {

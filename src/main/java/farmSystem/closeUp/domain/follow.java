@@ -16,10 +16,10 @@ public class follow extends BaseEntity{
     private Long followId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user; //일반유저
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id")
-    private Creator creator;
+    @JoinColumn(name = "creator_id", referencedColumnName = "user_id")
+    private User creator; //크리에이터
 }
