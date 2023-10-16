@@ -11,6 +11,7 @@ import farmSystem.closeUp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
 import java.util.Optional;
@@ -25,6 +26,7 @@ public class UserService {
     private final JwtService jwtService;
 
 
+    @Transactional
     public TokenResponse reIssueToken(String refreshToken) throws Exception {
         log.info("reissue start");
 
