@@ -30,9 +30,18 @@ public class User extends BaseEntity{
     private String birthDay;
     private Long point;
 
+    // Creator 필드
+    private String profileComment;
+    private String verificationImageUrl;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "platform_id")
+    private Platform platform;
+
+
     @Builder
     public User(Long userId, String nickName, String address, String phoneNumber, String profileImageUrl, String email, UserRole userRole, String password,
-                SocialType socialType, String socialId, String gender, String birthDay, Long point){
+                SocialType socialType, String socialId, String gender, String birthDay, Long point, String profileComment, String verificationImageUrl){
         this.userId = userId;
         this.nickName = nickName;
         this.password = password;
@@ -46,10 +55,12 @@ public class User extends BaseEntity{
         this.gender = gender;
         this.birthDay = birthDay;
         this.point = point;
+        this.profileComment = profileComment;
+        this.verificationImageUrl = verificationImageUrl;
     }
 
     // 유저 권한 설정 메소드
-    public void authorizeUser() {
-        this.userRole = UserRole.USER;
+    public void authorizeUser(UserRole userRole) {
+        this.userRole = userRole;
     }
 }
