@@ -4,10 +4,9 @@ package farmSystem.closeUp.config.security;
 import farmSystem.closeUp.config.CorsConfig;
 import farmSystem.closeUp.config.jwt.JwtAuthenticationFilter;
 import farmSystem.closeUp.config.jwt.JwtService;
+import farmSystem.closeUp.config.oauth.CustomOAuth2UserService;
 import farmSystem.closeUp.config.oauth.handler.OAuth2LoginFailureHandler;
 import farmSystem.closeUp.config.oauth.handler.OAuth2LoginSuccessHandler;
-import farmSystem.closeUp.config.oauth.CustomOAuth2UserService;
-
 import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.repository.UserRepository;
 import farmSystem.closeUp.service.UserService;
@@ -19,7 +18,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -54,7 +52,7 @@ public class SecurityConfig {
 
                 // 특정 URL에 대한 권한 설정
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/main","/login-success","/token/reissue", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
+                        .requestMatchers("/main","/login-success","/token/reissue", "/sign-up/**", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
                         .requestMatchers("/user/**").hasRole("USER")
                         .requestMatchers("/creator/**").hasRole("CREATOR")
                     .anyRequest().authenticated()

@@ -5,8 +5,13 @@ import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.config.jwt.JwtService;
 import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.config.security.SecurityUtils;
+import farmSystem.closeUp.domain.*;
+import farmSystem.closeUp.dto.request.UserFollowRequest;
+import farmSystem.closeUp.dto.request.UserInfoRequest;
+import farmSystem.closeUp.dto.request.UserInterestRequest;
 import farmSystem.closeUp.dto.response.TokenResponse;
-import farmSystem.closeUp.domain.User;
+import farmSystem.closeUp.repository.FollowRepository;
+import farmSystem.closeUp.repository.UserInterestRepository;
 import farmSystem.closeUp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +27,8 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;
+    private final UserInterestRepository userInterestRepository;
     private final RedisUtils redisUtils;
     private final JwtService jwtService;
 
@@ -75,6 +82,48 @@ public class UserService {
         return userRepository
                 .findById(SecurityUtils.getCurrentUserId())
                 .orElseThrow(() -> new Exception("회원을 찾지 못함"));
+    }
+
+    public Boolean signUp(UserInfoRequest userInfoRequest) throws Exception {
+        User user = User.builder()
+                .userRole(UserRole.valueOf(userInfoRequest.getUserRole()))
+                .nickName(userInfoRequest.getNickname())
+                .address(userInfoRequest.getAddress())
+                .phoneNumber(userInfoRequest.getPhoneNumber())
+                .profileImageUrl(userInfoRequest.getProfileImageUrl())
+                .gender(userInfoRequest.getGender())
+                .birthDay(userInfoRequest.getBirthday())
+                .build();
+        userRepository.save(user);
+        return true;
+    }
+
+    public Boolean followBulk(UserFollowRequest userFollowRequest) throws Exception {
+        User user = User.builder().userId(userFollowRequest.getUserId()).build();
+        for (Long creatorId : userFollowRequest.getCreatorId()) {
+            User creator = User.builder().userId(creatorId).build();
+            System.out.println(user.getUserId());
+            follow followCreator = follow.builder()
+                    .user(user)
+                    .creator(creator)
+                    .build();
+            followRepository.save(followCreator);
+        }
+
+        return true;
+    }
+
+    public Boolean interestBulk(UserInterestRequest userInterestRequest) throws Exception {
+        User user = User.builder().userId(userInterestRequest.getUserId()).build();
+        for (Long interestId : userInterestRequest.getGenreId()) {
+            Interest interest = Interest.builder().interestId(interestId).build();
+            UserInterest userInterest = UserInterest.builder()
+                    .user(user)
+                    .interest(interest)
+                    .build();
+            userInterestRepository.save(userInterest);
+        }
+        return true;
     }
 
 }
