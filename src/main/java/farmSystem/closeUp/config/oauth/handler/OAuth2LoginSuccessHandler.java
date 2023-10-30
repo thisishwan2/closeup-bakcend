@@ -51,8 +51,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
         String accessToken = jwtService.createAccessToken(oAuth2User.getUserId());
         String refreshToken = jwtService.createRefreshToken(oAuth2User.getUserId()); //여기서 refreshToken 업데이트 됨
-        log.info(accessToken);
-        log.info(refreshToken);
+//        log.info(accessToken);
+//        log.info(refreshToken);
 
         //여기서 일반 회원인지 크리에이터인지에 따라 메인 페이지 리다이렉트를 다르게 해줘야한다.(현재는 그냥 회원의 페이지로 생각함.)
         String redirectURL = "http://localhost:8080/login-success?access_token=" + accessToken + "&refresh_token=" + refreshToken;
