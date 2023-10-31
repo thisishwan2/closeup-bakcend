@@ -47,7 +47,7 @@ public class CommonRestExceptionHandler extends RuntimeException {
                 request.getRequestURI(), e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
 
         return CommonResponse.builder()
-                .code(-1)
+                .status(-1)
                 .message(e.getBindingResult().getAllErrors().get(0).getDefaultMessage())
                 .build();
     }
@@ -63,7 +63,7 @@ public class CommonRestExceptionHandler extends RuntimeException {
         log.error("url {}, message: {}",
                 request.getRequestURI(), e.getParameterName() + " 값이 등록되지 않았습니다.");
         return CommonResponse.builder()
-                .code(-1)
+                .status(-1)
                 .message(e.getParameterName() + " 값이 등록되지 않았습니다.")
                 .build();
     }
@@ -79,7 +79,7 @@ public class CommonRestExceptionHandler extends RuntimeException {
         log.error("url {}, message: {}",
                 request.getRequestURI(), e.getRequestPartName() + " 값을 요청받지 못했습니다.");
         return CommonResponse.builder()
-                .code(-1)
+                .status(-1)
                 .message("{ " + e.getRequestPartName() + " }"+ " 값을 요청받지 못했습니다.")
                 .build();
     }
