@@ -17,6 +17,9 @@ public enum Result {
     INTERNAL_SERVER_ERROR(500, "Server Error"),
     INVALID_TYPE_VALUE(400, " Invalid Type Value"),
     ACCESS_TOKEN_EXPIRED(400,"access 토큰 만료"),
+    UNAUTHORIZED(401, "권한이 없습니다."),
+    FORBIDDEN_REQUEST(403, "잘못된 권한 요청입니다."),
+    INVALID_TOKEN(400, "유효하지 않은 토큰입니다."),
 
     // 유저
     HANDLE_ACCESS_DENIED(403, "로그인이 필요합니다."),
@@ -27,7 +30,8 @@ public enum Result {
     NOT_AUTHORIZED(403, "작성자만 수정 및 삭제를 할 수 있습니다."),
     USERNAME_DUPLICATION(400, "이미 등록된 아이디입니다."),
     LOGIN_INPUT_INVALID(400, "로그인 정보를 다시 확인해주세요."),
-    NOTFOUND_USER(404,  "해당 이름의 유저가 존재하지 않습니다."),
+    NOTFOUND_USER(404,  "유저를 찾을 수 없습니다."),
+    UNAUTHORIZED_TOKEN(401, "유효한 토큰이 없습니다."),
 
 
     // 게시글
