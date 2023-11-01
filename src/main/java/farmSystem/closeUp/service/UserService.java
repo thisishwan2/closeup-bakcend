@@ -74,7 +74,7 @@ public class UserService {
 
     // 추가 회원가입
     @Transactional
-    public UserResponseTest signUp(UserRequestTest userRequestTest) throws Exception {
+    public UserResponseTest signUp(UserRequestTest userRequestTest){
         User currentUser = getCurrentUser();
         currentUser.signUp(userRequestTest.getNickname(), userRequestTest.getAddress(), userRequestTest.getPhoneNumber(), userRequestTest.getProfileImageUrl(), userRequestTest.getGender(), userRequestTest.getBirthday());
         currentUser.authorizeUser();
