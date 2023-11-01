@@ -10,14 +10,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
+public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtService jwtService;
 
@@ -28,36 +33,46 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
             log.info("Principal에서 꺼낸 OAuth2User = {}", oAuth2User);
 
+            /*
+            각 역할별로(추가 회원가입(GUEST), 관심사 설정(INTEREST), 크리에이터 팔로우(FOLLOW), 로그인 성공(USER, CREATOR) ) 다른 페이지로 리다이렉트 해줘야한다.
+             */
+            String targetUrl;
+
             // User의 Role이 GUEST일 경우 처음 요청한 회원이므로 회원가입 페이지로 리다이렉트
             if(oAuth2User.getUserRole() == UserRole.GUEST) {
-                String accessToken = jwtService.createAccessToken(oAuth2User.getUserId());
-                String refreshToken = jwtService.createRefreshToken(oAuth2User.getUserId());
-                log.info(accessToken);
-                log.info(refreshToken);
+                targetUrl = "http://localhost:8080/login-success-test"; //프론트에 맞게 변경
+                String redirectUrl = createToken(response, oAuth2User, targetUrl);
 
-                String redirectURL = "http://localhost:8080/login?access_token=" + accessToken + "&refresh_token=" + refreshToken;
-//                String redirectURL = "http://localhost:8080/login?access_token=" + accessToken + "&refresh_token=" + refreshToken; 프론트 URL로 변경
-                response.sendRedirect(redirectURL);
+                // 로그인 확인 페이지로 리다이렉트 시킨다.
                 log.info("추가 회원가입 진행");
-            } else {
-                loginSuccess(response, oAuth2User); // 처음 로그인이 아니고 회원인 경우 로그인에 성공한 경우 access, refresh 토큰 생성
-                log.info("로그인 성공 메인페이지 이동");
+                getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+
+            } else if(oAuth2User.getUserRole() == UserRole.INTERESTED_USER) { // 가입은 됐지만, 관심사 설정 안한경우
+                targetUrl = "http://localhost:8080/user/interest";
+                String redirectUrl = createToken(response, oAuth2User, targetUrl);
+                log.info("관심사 설정 페이지로 이동");
+                getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+            } else if(oAuth2User.getUserRole() == UserRole.FOLLOWED_USER) { // 관심사 설정까지 했지만, 크리에이터 팔로우 설정을 안한 경우
+                targetUrl = "http://localhost:8080/user/creator-follow";
+                String redirectUrl = createToken(response, oAuth2User, targetUrl);
+                log.info("크리에이터 팔로우 페이지로 이동");
+                getRedirectStrategy().sendRedirect(request, response, redirectUrl);
             }
         } catch (Exception e) {
             throw e;
         }
     }
 
-    private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
+    private String createToken(HttpServletResponse response, CustomOAuth2User oAuth2User, String targetUrl) throws IOException {
         String accessToken = jwtService.createAccessToken(oAuth2User.getUserId());
         String refreshToken = jwtService.createRefreshToken(oAuth2User.getUserId()); //여기서 refreshToken 업데이트 됨
-//        log.info(accessToken);
-//        log.info(refreshToken);
+        log.info(accessToken);
+        log.info(refreshToken);
 
-        //여기서 일반 회원인지 크리에이터인지에 따라 메인 페이지 리다이렉트를 다르게 해줘야한다.(현재는 그냥 회원의 페이지로 생각함.)
-        String redirectURL = "http://localhost:8080/login-success?access_token=" + accessToken + "&refresh_token=" + refreshToken;
-//        String redirectURL = "http://localhost:8080/login?access_token=" + accessToken + "&refresh_token=" + refreshToken; 프론트 URL로 변경
-        response.sendRedirect(redirectURL);
-
+        String redirectUrl = UriComponentsBuilder.fromUriString(targetUrl)
+                .queryParam("accessToken", accessToken)
+                .queryParam("refreshToken", refreshToken)
+                .build().encode(StandardCharsets.UTF_8).toUriString();
+        return redirectUrl;
     }
 }

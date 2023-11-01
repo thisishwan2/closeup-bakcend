@@ -52,4 +52,13 @@ public class User extends BaseEntity{
     public void authorizeUser() {
         this.userRole = UserRole.USER;
     }
+
+    public void signUp(String nickName, String address, String phoneNumber, String profileImageUrl, String gender, String birthDay){
+        this.nickName = nickName;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.profileImageUrl = profileImageUrl;
+        this.gender = gender;
+        this.birthDay = birthDay;
+    }
 }
