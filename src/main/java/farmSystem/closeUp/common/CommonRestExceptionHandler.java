@@ -6,6 +6,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -83,4 +85,21 @@ public class CommonRestExceptionHandler extends RuntimeException {
                 .message("{ " + e.getRequestPartName() + " }"+ " 값을 요청받지 못했습니다.")
                 .build();
     }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MissingRequestHeaderException.class)
+        public CommonResponse<Object> handleMissingRequestHeaderException(
+                MissingRequestHeaderException e, HttpServletRequest request
+    ) {
+        log.error("url {}, message: {}",
+                request.getRequestURI(), e.getHeaderName() + " 값을 요청받지 못했습니다.");
+        return CommonResponse.builder()
+                .status(-1)
+                .message("{ " + e.getHeaderName() + " }"+ " 값을 요청받지 못했습니다.")
+                .build();
+    }
+
+
+
 }
