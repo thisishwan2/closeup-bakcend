@@ -1,9 +1,9 @@
 package farmSystem.closeUp.config.jwt;
 
-import farmSystem.closeUp.config.redis.RedisUtils;
+import farmSystem.closeUp.common.CustomException;
+import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.repository.UserRepository;
-import farmSystem.closeUp.service.UserService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,17 +11,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.naming.AuthenticationException;
 import java.io.IOException;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,15 +31,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final RedisUtils redisUtils;
-    private final UserService userService;
+
+
 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
+    // 토큰 검사 생략
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getRequestURI().contains("/main") || request.getRequestURI().contains("/login-success") || request.getRequestURI().contains("/login")
-                || request.getRequestURI().contains("/reissue");
+        return request.getRequestURI().contains("/login-success-test") || request.getRequestURI().contains("/login-success") || request.getRequestURI().contains("/reissue");
     }
 
     @Override
@@ -46,51 +48,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("JwtAuthFilter 동작");
         String requestURI = request.getRequestURI();
 
-        //accessToken 꺼내기
-//        String accessToken = jwtService.extractAccessToken(request).get();
-        String accessToken = jwtService.extractAccessToken(request)
-                .filter(jwtService::validateToken)
-                .orElse(null);
-        log.info("accesstoken = "+ accessToken);
+        String bearerToken = request.getHeader("Authorization");
+        log.info("bearerToken = "+ bearerToken);
+        String accessToken = jwtService.extractToken(bearerToken);
 
-        // 토큰 검사 생략(permitall URL의 경우 토큰 검사 통과)
+//        //accessToken 꺼내기
+////        String accessToken = jwtService.extractAccessToken(request).get();
+//        String accessToken = jwtService.extractAccessToken(request)
+//                .filter(jwtService::verifyToken)
+//                .orElse(null);
+//        log.info("accesstoken = "+ accessToken);
+
+        // 토큰 검사 생략(모두 허용 URL의 경우 토큰 검사 통과)
         if (!StringUtils.hasText(accessToken)) {
             log.info("토큰 검사 생략");
             doFilter(request, response, filterChain);
             return;
         }
 
-        if(!jwtService.validateToken(accessToken)){
+        // AccessToken을 검증하고, 만료되었을경우 예외를 발생시킨다.
+        if(!jwtService.verifyToken(accessToken)){
             log.info("유효한 JWT 토큰이 없습니다, uri {}", requestURI);
-            throw new JwtException("토큰이 없답니당");
+            throw new JwtException("Access Token 만료");
         }
 
         // 토큰 존재 및 유효성 검증
-        if (jwtService.validateToken(accessToken)) {
-            checkAccessTokenAndAuthentication(request, response, filterChain);
+        if (jwtService.verifyToken(accessToken)) {
+            User user = userRepository.findById(jwtService.getUserId(accessToken))
+                    .orElseThrow(() -> new JwtException("올바르지 않은 Token"));
+
+            saveAuthentication(user);
+
+//            checkAccessTokenAndAuthentication(request, response, filterChain);
         }
 
         filterChain.doFilter(request, response);
-    }
-
-
-    /**
-     * [액세스 토큰 체크 & 인증 처리 메소드]
-     * request에서 extractAccessToken()으로 액세스 토큰 추출 후, isTokenValid()로 유효한 토큰인지 검증
-     * 유효한 토큰이면, 액세스 토큰에서 extractEmail로 Email을 추출한 후 findByEmail()로 해당 이메일을 사용하는 유저 객체 반환
-     * 그 유저 객체를 saveAuthentication()으로 인증 처리하여
-     * 인증 허가 처리된 객체를 SecurityContextHolder에 담기
-     * 그 후 다음 인증 필터로 진행
-     */
-    public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
-                                                  FilterChain filterChain) throws ServletException, IOException {
-        log.info("checkAccessTokenAndAuthentication() 호출");
-        jwtService.extractAccessToken(request)
-                .filter(jwtService::validateToken)
-                .ifPresent(accessToken -> jwtService.getUserId(accessToken)
-                        .ifPresent(userId -> userRepository.findById(userId)
-                                .ifPresent(this::saveAuthentication)));
-
     }
 
     /**
@@ -118,7 +110,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
                 .username(String.valueOf(myUser.getUserId()))
                 .password(password)
-                .roles(String.valueOf(myUser.getUserRole().GUEST))
+                .roles(myUser.getUserRole().toString())
                 .build();
 
         Authentication authentication =

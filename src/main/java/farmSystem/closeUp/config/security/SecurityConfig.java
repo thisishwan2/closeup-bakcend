@@ -2,8 +2,7 @@ package farmSystem.closeUp.config.security;
 
 
 import farmSystem.closeUp.config.CorsConfig;
-import farmSystem.closeUp.config.jwt.JwtAuthenticationFilter;
-import farmSystem.closeUp.config.jwt.JwtService;
+import farmSystem.closeUp.config.jwt.*;
 import farmSystem.closeUp.config.oauth.handler.OAuth2LoginFailureHandler;
 import farmSystem.closeUp.config.oauth.handler.OAuth2LoginSuccessHandler;
 import farmSystem.closeUp.config.oauth.CustomOAuth2UserService;
@@ -36,6 +35,10 @@ public class SecurityConfig {
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final RedisUtils redisUtils;
     private final UserService userService;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtExceptionFilter jwtExceptionFilter;
+
 
 
 
@@ -47,6 +50,10 @@ public class SecurityConfig {
                 .httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer.disable()) //HTTP 기본인증 비활성
                 .addFilter(corsConfig.corsFilter())
 
+                .exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler))
+
                 // 시큐리티가 세션을 만들지도 사용하지도 않음.
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -54,7 +61,8 @@ public class SecurityConfig {
 
                 // 특정 URL에 대한 권한 설정
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/main","/login-success","/token/reissue", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
+                        .requestMatchers("/login-success-test/**").permitAll()
+                        .requestMatchers("/token/reissue", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
                         .requestMatchers("/user/**").hasRole("USER")
                         .requestMatchers("/creator/**").hasRole("CREATOR")
                     .anyRequest().authenticated()
@@ -68,10 +76,9 @@ public class SecurityConfig {
                                 .failureHandler(oAuth2LoginFailureHandler) // 소셜 로그인 실패 시 핸들러 설정
 
                                 );
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
-        // jwtAuthFilter가 먼저 실행됨.// UsernamePasswordAuthenticationFilter는 인증되지 않은 사용자의 경우 로그인 페이지로 리다이렉션하므로 jwt 토큰 먼저 검증후 인증객체를 컨텍스트에 넣어야함
-        return http.build();
+        // JwtExceptionFilter -> JwtAuthenticationFilter -> UsernamePasswordAuthenticationFilter 순으로 필터가 실행된다.
+        return  http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class).build();
     }
 
     @Bean
@@ -81,7 +88,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, userRepository,redisUtils,userService);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, userRepository);
         return jwtAuthenticationFilter;
     }
 }

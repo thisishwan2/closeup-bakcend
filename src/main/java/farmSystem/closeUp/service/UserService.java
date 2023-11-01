@@ -7,6 +7,8 @@ import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.config.security.SecurityUtils;
 import farmSystem.closeUp.dto.response.TokenResponse;
 import farmSystem.closeUp.domain.User;
+import farmSystem.closeUp.dto.request.UserRequestTest;
+import farmSystem.closeUp.dto.response.UserResponseTest;
 import farmSystem.closeUp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,41 +29,28 @@ public class UserService {
 
 
     @Transactional
-    public TokenResponse reIssueToken(String refreshToken) throws Exception {
+    public TokenResponse reIssueToken(String refreshToken) {
+
         log.info("reissue start");
 
         // Bearer 뺀 토큰 자체
         refreshToken = jwtService.extractToken(refreshToken);
         // 클라이언트가 보낸 토큰의 클레임으로 있는 userId를 가져옴.
-        Optional<Long> userId = jwtService.getUserId(refreshToken);
-
-        if (!userId.isPresent()){
-            throw new CustomException(Result.INVALID_ACCESS);
-        }
-
-        Long getUserId = userId.get();
-
-//        // 현재 컨텍스트 내에 있는 user
-//        User currentUser = getCurrentUser();
-//        Long userId = currentUser.getUserId();
+        Long userId = jwtService.getUserId(refreshToken);
 
         // userId로 조회한 redis 상의 토큰 value
-        String findRefreshToken = redisUtils.getData(String.valueOf(getUserId));
+        String findRefreshToken = redisUtils.getData(String.valueOf(userId));
         log.info(findRefreshToken);
-
-//        if (findRefreshToken=="false"){
-//            throw new CustomException(Result.INVALID_ACCESS);
-//        }
 
         // 현재 사용자와 토큰에 적힌 사용자가 다르면 올바르지 않은 접근
         if (!findRefreshToken.equals(refreshToken)){
-            redisUtils.deleteData(String.valueOf(getUserId));
+            redisUtils.deleteData(String.valueOf(userId));
             //로그아웃
-            throw new CustomException(Result.NOTFOUND_USER);
+            throw new CustomException(Result.INVALID_TOKEN);
         }
 
-        String newRefreshToken = jwtService.createRefreshToken(getUserId);
-        String newAccessToken = jwtService.createAccessToken(getUserId);
+        String newRefreshToken = jwtService.createRefreshToken(userId);
+        String newAccessToken = jwtService.createAccessToken(userId);
         return TokenResponse.toDto(newAccessToken, newRefreshToken);
     }
 
@@ -71,10 +60,34 @@ public class UserService {
         return SecurityUtils.getCurrentUserId();
     }
 
-    public User getCurrentUser() throws Exception {
-        return userRepository
-                .findById(SecurityUtils.getCurrentUserId())
-                .orElseThrow(() -> new Exception("회원을 찾지 못함"));
+
+    // 현재 사용자 조회
+    @Transactional(readOnly = true)
+    public User getCurrentUser() {
+        try {
+            return userRepository
+                    .findById(SecurityUtils.getCurrentUserId())
+                    .orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+        } catch (Exception e) {
+            throw new CustomException(Result.NOTFOUND_USER);
+        }
+    }
+
+    // 추가 회원가입
+    @Transactional
+    public UserResponseTest signUp(UserRequestTest userRequestTest){
+        User currentUser = getCurrentUser();
+        currentUser.signUp(userRequestTest.getNickname(), userRequestTest.getAddress(), userRequestTest.getPhoneNumber(), userRequestTest.getProfileImageUrl(), userRequestTest.getGender(), userRequestTest.getBirthday());
+        currentUser.authorizeUser();
+        return UserResponseTest.builder().userId(currentUser.getUserId()).build();
+    }
+
+    //권한 확인용
+    @Transactional(readOnly = true)
+    public User getUser(Long userId){
+        Optional<User> byId = userRepository.findById(userId);
+        User user = byId.get();
+        return user;
     }
 
 }
