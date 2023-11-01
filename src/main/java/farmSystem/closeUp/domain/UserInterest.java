@@ -8,18 +8,18 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class follow extends BaseEntity{
+public class UserInterest extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "follow_id")
-    private Long followId;
+    @Column(name = "user_interest_id")
+    private Long userInterestId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    private User user; //일반유저
+    @JoinColumn(name = "user_id")
+    private User user; //일반유저, 크리에이터
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id", referencedColumnName = "user_id")
-    private User creator; //크리에이터
+    @JoinColumn(name = "interest_id")
+    private Interest interest;
 }

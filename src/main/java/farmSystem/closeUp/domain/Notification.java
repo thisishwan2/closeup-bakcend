@@ -21,8 +21,8 @@ public class Notification extends BaseEntity{
     private String notificationContent;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id")
-    private Creator creator;
+    @JoinColumn(name = "user_id")
+    private User creator; // 크리에이터
 
     @Builder
     public Notification(Long notificationId, String notificationTitle, String notificationContent){
