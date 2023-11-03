@@ -17,7 +17,7 @@ public class Notification extends BaseEntity{
     @Column(name = "notification_id")
     private Long notificationId;
 
-    private String notificationTitle;
+    private String notificationTitle; // 제목이 필요한가?
     private String notificationContent;
 
     @ManyToOne(fetch = FetchType.LAZY)
