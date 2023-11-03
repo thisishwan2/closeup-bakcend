@@ -19,9 +19,9 @@ public class FollowController {
     private final FollowService followService;
 
     // 회원이 팔로우한 크리에이터 조회
-    @GetMapping("/user/{userId}/following")
-    public CommonResponse<List<GetFollowingResponse>> getFollowingList(@PathVariable("userId") Long userId) {
-        return CommonResponse.success(followService.getFollowingList(userId));
+    @GetMapping("/user/following")
+    public CommonResponse<List<GetFollowingResponse>> getFollowingList() {
+        return CommonResponse.success(followService.getFollowingList());
     }
 
 }
