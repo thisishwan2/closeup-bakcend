@@ -33,8 +33,6 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
-    private final RedisUtils redisUtils;
-    private final UserService userService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtExceptionFilter jwtExceptionFilter;
