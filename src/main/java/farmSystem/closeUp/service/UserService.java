@@ -5,10 +5,13 @@ import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.config.jwt.JwtService;
 import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.config.security.SecurityUtils;
+import farmSystem.closeUp.domain.Follow;
+import farmSystem.closeUp.domain.UserRole;
 import farmSystem.closeUp.dto.response.TokenResponse;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.dto.request.UserRequestTest;
 import farmSystem.closeUp.dto.response.UserResponseTest;
+import farmSystem.closeUp.dto.user.response.GetSearchCreatorResponse;
 import farmSystem.closeUp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,6 +32,30 @@ public class UserService {
     private final UserRepository userRepository;
     private final RedisUtils redisUtils;
     private final JwtService jwtService;
+
+    @Transactional
+    public List<GetSearchCreatorResponse> searchCreatorByKeyword(String keyword){
+        List<GetSearchCreatorResponse> searchCreatorResponses = new ArrayList<>();
+
+        List<User> findCreators = userRepository.findByNickNameContainingAndUserRole(keyword, UserRole.CREATOR);
+
+        for (User findCreator : findCreators) {
+            searchCreatorResponses.add(GetSearchCreatorResponse.of(findCreator.getUserId(), findCreator.getNickName(), findCreator.getProfileImageUrl(), findCreator.getProfileComment()));
+        }
+        return searchCreatorResponses;
+    }
+
+    @Transactional
+    public List<GetSearchCreatorResponse> searchCreatorByPlatform(Long platformId){
+        List<GetSearchCreatorResponse> searchCreatorResponses = new ArrayList<>();
+
+        List<User> findCreators = userRepository.findByPlatform(platformId);
+
+        for (User findCreator : findCreators) {
+            searchCreatorResponses.add(GetSearchCreatorResponse.of(findCreator.getUserId(), findCreator.getNickName(), findCreator.getProfileImageUrl(), findCreator.getProfileComment()));
+        }
+        return searchCreatorResponses;
+    }
 
 
     @Transactional
@@ -78,7 +108,7 @@ public class UserService {
     public UserResponseTest signUp(UserRequestTest userRequestTest){
         User currentUser = getCurrentUser();
         currentUser.signUp(userRequestTest.getNickname(), userRequestTest.getAddress(), userRequestTest.getPhoneNumber(), userRequestTest.getProfileImageUrl(), userRequestTest.getGender(), userRequestTest.getBirthday());
-        currentUser.authorizeUser();
+        currentUser.authorizeUser(UserRole.USER);
         return UserResponseTest.builder().userId(currentUser.getUserId()).build();
     }
 
