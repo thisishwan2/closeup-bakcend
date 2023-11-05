@@ -3,7 +3,7 @@ package farmSystem.closeUp.service;
 import farmSystem.closeUp.domain.Follow;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.dto.follow.response.GetFollowingResponse;
-import farmSystem.closeUp.repository.FollowRepository;
+import farmSystem.closeUp.repository.follow.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

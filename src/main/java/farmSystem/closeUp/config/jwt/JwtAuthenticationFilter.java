@@ -1,9 +1,7 @@
 package farmSystem.closeUp.config.jwt;
 
-import farmSystem.closeUp.common.CustomException;
-import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.domain.User;
-import farmSystem.closeUp.repository.UserRepository;
+import farmSystem.closeUp.repository.user.UserRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -2,7 +2,7 @@ package farmSystem.closeUp.service;
 
 import farmSystem.closeUp.domain.Platform;
 import farmSystem.closeUp.dto.platform.response.GetPlatformsResponse;
-import farmSystem.closeUp.repository.PlatformRepository;
+import farmSystem.closeUp.repository.platform.PlatformRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
