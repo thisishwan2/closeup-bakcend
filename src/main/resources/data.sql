@@ -110,14 +110,14 @@ INSERT INTO follow (user_id, creator_id) VALUES (11, 7);
 INSERT INTO follow (user_id, creator_id) VALUES (12, 8);
 
 -- 공지 사항
-INSERT INTO notification (created_at, user_id, notification_content, notification_title)
-VALUES ('2023-09-02 12:00:00', 1, '공지사항1 내용', '공지사항1 제목');
-INSERT INTO notification (created_at, user_id, notification_content, notification_title)
-VALUES ('2023-09-03 12:00:00', 1, '공지사항2 내용', '공지사항2 제목');
-INSERT INTO notification (created_at, user_id, notification_content, notification_title)
-VALUES ('2023-09-04 12:00:00', 1, '공지사항3 내용', '공지사항3 제목');
-INSERT INTO notification (created_at, user_id, notification_content, notification_title)
-VALUES ('2023-09-05 12:00:00', 1, '공지사항4 내용', '공지사항4 제목');
+INSERT INTO notification (created_at, user_id, notification_content, notification_title, notification_thumbnail_url)
+VALUES ('2023-09-02 12:00:00', 1, '공지사항1 내용', '공지사항1 제목', '공지사항1 썸네일 url');
+INSERT INTO notification (created_at, user_id, notification_content, notification_title, notification_thumbnail_url)
+VALUES ('2023-09-03 12:00:00', 1, '공지사항2 내용', '공지사항2 제목', '공지사항2 썸네일 url');
+INSERT INTO notification (created_at, user_id, notification_content, notification_title, notification_thumbnail_url)
+VALUES ('2023-09-04 12:00:00', 1, '공지사항3 내용', '공지사항3 제목', '공지사항3 썸네일 url');
+INSERT INTO notification (created_at, user_id, notification_content, notification_title, notification_thumbnail_url)
+VALUES ('2023-09-05 12:00:00', 1, '공지사항4 내용', '공지사항4 제목', '공지사항4 썸네일 url');
 
 -- 공지사항 이미지 설정
 INSERT INTO image (created_at, notification_id, image_url, original_image_name, upload_image_name)
