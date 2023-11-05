@@ -35,7 +35,7 @@ public class User extends BaseEntity{
     private String verificationImageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "platform_id")
+    @JoinColumn(name = "platform_id", nullable = true)
     private Platform platform;
 
 
@@ -71,5 +71,9 @@ public class User extends BaseEntity{
         this.profileImageUrl = profileImageUrl;
         this.gender = gender;
         this.birthDay = birthDay;
+    }
+
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
     }
 }

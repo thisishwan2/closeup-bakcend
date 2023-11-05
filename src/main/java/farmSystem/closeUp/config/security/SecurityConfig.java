@@ -7,9 +7,7 @@ import farmSystem.closeUp.config.oauth.handler.OAuth2LoginFailureHandler;
 import farmSystem.closeUp.config.oauth.handler.OAuth2LoginSuccessHandler;
 import farmSystem.closeUp.config.oauth.CustomOAuth2UserService;
 
-import farmSystem.closeUp.config.redis.RedisUtils;
-import farmSystem.closeUp.repository.UserRepository;
-import farmSystem.closeUp.service.UserService;
+import farmSystem.closeUp.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,8 +31,6 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
-    private final RedisUtils redisUtils;
-    private final UserService userService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtExceptionFilter jwtExceptionFilter;
