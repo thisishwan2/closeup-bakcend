@@ -5,16 +5,20 @@ import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.config.jwt.JwtService;
 import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.config.security.SecurityUtils;
-import farmSystem.closeUp.domain.Follow;
 import farmSystem.closeUp.domain.UserRole;
-import farmSystem.closeUp.dto.response.TokenResponse;
+import farmSystem.closeUp.dto.user.response.PostTokenReissueResponse;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.dto.request.UserRequestTest;
 import farmSystem.closeUp.dto.response.UserResponseTest;
 import farmSystem.closeUp.dto.user.response.GetSearchCreatorResponse;
-import farmSystem.closeUp.repository.UserRepository;
+import farmSystem.closeUp.repository.user.UserRepository;
+import farmSystem.closeUp.repository.user.UserRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserRepositoryImpl userRepositoryImpl;
     private final RedisUtils redisUtils;
     private final JwtService jwtService;
 
@@ -46,20 +51,20 @@ public class UserService {
     }
 
     @Transactional
-    public List<GetSearchCreatorResponse> searchCreatorByPlatform(Long platformId){
+    public Slice<GetSearchCreatorResponse> searchCreatorByPlatform(Long platformId, Pageable pageable){
         List<GetSearchCreatorResponse> searchCreatorResponses = new ArrayList<>();
 
-        List<User> findCreators = userRepository.findByPlatform(platformId);
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        for (User findCreator : findCreators) {
-            searchCreatorResponses.add(GetSearchCreatorResponse.of(findCreator.getUserId(), findCreator.getNickName(), findCreator.getProfileImageUrl(), findCreator.getProfileComment()));
-        }
-        return searchCreatorResponses;
+        Slice<GetSearchCreatorResponse> findCreators = userRepositoryImpl.findByPlatform(platformId, pageable);
+
+        return findCreators;
     }
 
 
     @Transactional
-    public TokenResponse reIssueToken(String refreshToken) {
+    public PostTokenReissueResponse reIssueToken(String refreshToken) {
 
         log.info("reissue start");
 
@@ -81,7 +86,7 @@ public class UserService {
 
         String newRefreshToken = jwtService.createRefreshToken(userId);
         String newAccessToken = jwtService.createAccessToken(userId);
-        return TokenResponse.toDto(newAccessToken, newRefreshToken);
+        return PostTokenReissueResponse.of(newAccessToken, newRefreshToken);
     }
 
 
