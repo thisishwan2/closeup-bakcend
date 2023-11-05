@@ -1,4 +1,4 @@
-package farmSystem.closeUp.repository.follow;
+package farmSystem.closeUp.repository;
 
 import farmSystem.closeUp.domain.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;

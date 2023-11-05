@@ -1,4 +1,4 @@
-package farmSystem.closeUp.repository.user;
+package farmSystem.closeUp.repository;
 
 import farmSystem.closeUp.domain.SocialType;
 import farmSystem.closeUp.domain.User;
@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> , UserRepositoryCustom{
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByNickName(String nickName);
@@ -21,6 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> , UserReposito
 
     List<User> findByNickNameContainingAndUserRole(String searchName, UserRole userRole);
 
-//    List<User> findByPlatform(Long platformId);
+    List<User> findByPlatform(Long platformId);
 
 }
