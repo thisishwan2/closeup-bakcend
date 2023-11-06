@@ -35,7 +35,7 @@ public class User extends BaseEntity{
     private String verificationImageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "platform_id")
+    @JoinColumn(name = "platform_id", nullable = true)
     private Platform platform;
 
 
@@ -62,5 +62,18 @@ public class User extends BaseEntity{
     // 유저 권한 설정 메소드
     public void authorizeUser(UserRole userRole) {
         this.userRole = userRole;
+    }
+
+    public void signUp(String nickName, String address, String phoneNumber, String profileImageUrl, String gender, String birthDay){
+        this.nickName = nickName;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.profileImageUrl = profileImageUrl;
+        this.gender = gender;
+        this.birthDay = birthDay;
+    }
+
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
     }
 }

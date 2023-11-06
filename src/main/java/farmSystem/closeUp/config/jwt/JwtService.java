@@ -3,13 +3,15 @@ package farmSystem.closeUp.config.jwt;
 import farmSystem.closeUp.common.CustomException;
 import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.config.redis.RedisUtils;
-import farmSystem.closeUp.repository.UserRepository;
-import io.jsonwebtoken.*;
+import farmSystem.closeUp.repository.user.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,27 +95,6 @@ public class JwtService {
     }
 
     /**
-     * AccessToken 재발급시 헤더에 실어서 보내기
-     */
-    public void sendAccessToken(HttpServletResponse response, String accessToken) {
-        response.setStatus(HttpServletResponse.SC_OK);
-
-        response.setHeader(accessHeader, accessToken);
-        log.info("재발급된 Access Token : {}", accessToken);
-    }
-
-    /**
-     * AccessToken + RefreshToken 헤더에 실어서 보내기
-     */
-    public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken){
-        response.setStatus(HttpServletResponse.SC_OK);
-
-        response.setHeader(accessHeader, accessToken);
-        response.setHeader(refreshHeader, refreshToken);
-        log.info("Access Token, Refresh Token 헤더 설정 완료");
-    }
-
-    /**
      * 클라이언트 요청 헤더에서 AccessToken 추출
      * 토큰 형식 : Bearer XXX에서 Bearer를 제외하고 순수 토큰만 가져오기 위해서
      * 헤더를 가져온 후 "Bearer"를 삭제(""로 replace)
@@ -137,17 +118,25 @@ public class JwtService {
 
     // "Bearer " 부분을 제거
     public String extractToken(String token){
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
+        try {
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+        }catch (Exception e){
+            throw new CustomException(Result.INVALID_TOKEN);
         }
         return token;
     }
 
 
     // 토큰으로 회원 아이디 정보 조회
-    public Optional<Long> getUserId(String token) {
-        Long userId = Long.valueOf(String.valueOf(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("userId")));
-        return Optional.ofNullable(userId);
+    public Long getUserId(String token) {
+        try {
+            Long userId = Long.valueOf(String.valueOf(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("userId")));
+            return userId;
+        }catch (Exception e){
+            throw new CustomException(Result.INVALID_TOKEN);
+        }
     }
 
     // 토큰으로 회원 이메일 정보 조회
@@ -156,23 +145,39 @@ public class JwtService {
         return Optional.ofNullable(email);
     }
 
-    //유효성 검증
-    public boolean validateToken(String token) {
+    public boolean verifyToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
-        } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
-            throw new CustomException(Result.ACCESS_TOKEN_EXPIRED);
-        } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
-        } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            Jws<Claims> claims = Jwts.parser()
+                    .setSigningKey(secretKey) // 비밀키를 설정하여 파싱한다.
+                    .parseClaimsJws(token);  // 주어진 토큰을 파싱하여 Claims 객체를 얻는다.
+            log.info(claims.getBody().getExpiration().toString());
+            // 토큰의 만료 시간과 현재 시간비교
+            return claims.getBody()
+                    .getExpiration()
+                    .after(new Date());  // 만료 시간이 현재 시간 이후인지 확인하여 유효성 검사 결과를 반환
+        } catch (Exception e) {
+            log.info("토큰 만료 = {}", token);
+            return false;
         }
-        return false;
     }
+
+    //유효성 검증
+//    public boolean validateToken(String token) {
+//        try {
+//            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+//            return true;
+//        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+//            log.info("잘못된 JWT 서명입니다.");
+//        } catch (ExpiredJwtException e) {
+//            log.info("만료된 JWT 토큰입니다.");
+//            throw new CustomException(Result.ACCESS_TOKEN_EXPIRED);
+//        } catch (UnsupportedJwtException e) {
+//            log.info("지원되지 않는 JWT 토큰입니다.");
+//        } catch (IllegalArgumentException e) {
+//            log.info("JWT 토큰이 잘못되었습니다.");
+//        }
+//        return false;
+//    }
 
     // Token 남은 유효시간
     public Long getExpiration(String token) {
