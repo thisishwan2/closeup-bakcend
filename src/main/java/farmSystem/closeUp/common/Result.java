@@ -36,7 +36,10 @@ public enum Result {
 
     // 게시글
     NOTFOUND_POST(404, "해당 게시글이 존재하지 않습니다."),
-    CONVERTING_FAILED(400, "파일 변환에 실패했습니다.");
+    CONVERTING_FAILED(400, "파일 변환에 실패했습니다."),
+
+    // 래플
+    NOTFOUND_RAFFLE(404, "해당 래플이 존재하지 않습니다.");
 
 
     private final String message;
