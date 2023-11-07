@@ -6,6 +6,7 @@ import farmSystem.closeUp.config.jwt.*;
 import farmSystem.closeUp.config.oauth.CustomOAuth2UserService;
 import farmSystem.closeUp.config.oauth.handler.OAuth2LoginFailureHandler;
 import farmSystem.closeUp.config.oauth.handler.OAuth2LoginSuccessHandler;
+import farmSystem.closeUp.domain.UserRole;
 import farmSystem.closeUp.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -57,7 +58,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/login-success-test/**").permitAll()
                         .requestMatchers("/token/reissue", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
-                        .requestMatchers("/user/**").hasRole("USER")
+                        .requestMatchers("/user/sign-up/**").hasAnyRole(String.valueOf(UserRole.GUEST), String.valueOf(UserRole.SIGNUP_USER), String.valueOf(UserRole.FOLLOWED_USER), String.valueOf(UserRole.INTERESTED_USER))
+                        .requestMatchers("/user/**").hasRole(String.valueOf(UserRole.USER))
                         .requestMatchers("/creator/**").hasRole("CREATOR")
                     .anyRequest().authenticated()
                 )

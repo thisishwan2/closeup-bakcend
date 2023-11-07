@@ -2,6 +2,7 @@ package farmSystem.closeUp.controller;
 
 
 import farmSystem.closeUp.common.CommonResponse;
+import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.dto.request.UserFollowRequest;
 import farmSystem.closeUp.dto.request.UserInfoRequest;
 import farmSystem.closeUp.dto.request.UserInterestRequest;
@@ -43,21 +44,18 @@ public class UserController {
         return CommonResponse.success(userService.searchCreatorByPlatform(platformId, pageable));
     }
 
-    @PostMapping(value = "/sign-up")
-    public CommonResponse signUp(@RequestBody @Valid final UserInfoRequest userInfoRequest) throws Exception {
-        Boolean signUpResult = userService.signUp(userInfoRequest);
-        return CommonResponse.success();
+    @PostMapping(value = "/user/sign-up")
+    public CommonResponse<User> signUp(@RequestBody @Valid final UserInfoRequest userInfoRequest) throws Exception {
+        return CommonResponse.success(userService.signUp(userInfoRequest));
     }
 
-    @PostMapping(value = "/sign-up/follow")
-    public CommonResponse follow(@RequestBody final UserFollowRequest userFollowRequest) throws Exception {
-        Boolean signUpResult = userService.followBulk(userFollowRequest);
-        return CommonResponse.success();
+    @PostMapping(value = "/user/sign-up/follow")
+    public CommonResponse<Boolean> signUpFollowBulk(@RequestBody @Valid final UserFollowRequest userFollowRequest) throws Exception {
+        return CommonResponse.success(userService.followBulk(userFollowRequest));
     }
 
-    @PostMapping(value = "/sign-up/interest")
-    public CommonResponse interest(@RequestBody final UserInterestRequest userInterestRequest) throws Exception {
-        Boolean userInterestResult = userService.interestBulk(userInterestRequest);
-        return CommonResponse.success();
+    @PostMapping(value = "/user/sign-up/interest")
+    public CommonResponse<Boolean> signUpInterestBulk(@RequestBody @Valid final UserInterestRequest userInterestRequest) throws Exception {
+        return CommonResponse.success(userService.interestBulk(userInterestRequest));
     }
 }

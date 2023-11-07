@@ -5,10 +5,7 @@ import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.config.jwt.JwtService;
 import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.config.security.SecurityUtils;
-import farmSystem.closeUp.domain.Interest;
-import farmSystem.closeUp.domain.User;
-import farmSystem.closeUp.domain.UserInterest;
-import farmSystem.closeUp.domain.UserRole;
+import farmSystem.closeUp.domain.*;
 import farmSystem.closeUp.dto.request.UserFollowRequest;
 import farmSystem.closeUp.dto.request.UserInfoRequest;
 import farmSystem.closeUp.dto.request.UserInterestRequest;
@@ -16,8 +13,8 @@ import farmSystem.closeUp.dto.request.UserRequestTest;
 import farmSystem.closeUp.dto.response.UserResponseTest;
 import farmSystem.closeUp.dto.user.response.GetSearchCreatorResponse;
 import farmSystem.closeUp.dto.user.response.PostTokenReissueResponse;
-import farmSystem.closeUp.repository.FollowRepository;
 import farmSystem.closeUp.repository.UserInterestRepository;
+import farmSystem.closeUp.repository.follow.FollowRepository;
 import farmSystem.closeUp.repository.user.UserRepository;
 import farmSystem.closeUp.repository.user.UserRepositoryImpl;
 import lombok.RequiredArgsConstructor;
@@ -133,37 +130,70 @@ public class UserService {
         return user;
     }
 
-    public Boolean signUp(UserInfoRequest userInfoRequest) throws Exception {
-        User user = User.builder()
-                .userRole(UserRole.valueOf(userInfoRequest.getUserRole()))
+    public User signUp(UserInfoRequest userInfoRequest) throws Exception {
+        Long userId = null;
+        try {
+            userId = getCurrentUserId();
+        } catch (AuthenticationException e) {
+            throw new RuntimeException(e);
+        }
+
+        // 만약 유저 존재 안할 경우 에러
+        userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+
+        // 닉네임 중복 체크
+        userRepository.findByNickName(userInfoRequest.getNickname()).orElseThrow(() -> new CustomException(Result.USERNAME_DUPLICATION));
+
+        // 회원가입 레벨 통과
+        User userUpdate = User.builder()
+                .userId(userId)
                 .nickName(userInfoRequest.getNickname())
                 .address(userInfoRequest.getAddress())
                 .phoneNumber(userInfoRequest.getPhoneNumber())
                 .profileImageUrl(userInfoRequest.getProfileImageUrl())
                 .gender(userInfoRequest.getGender())
                 .birthDay(userInfoRequest.getBirthday())
+                .userRole(UserRole.SIGNUP_USER)
                 .build();
-        userRepository.save(user);
-        return true;
+        userRepository.save(userUpdate);
+        return userUpdate;
     }
 
     public Boolean followBulk(UserFollowRequest userFollowRequest) throws Exception {
-        User user = User.builder().userId(userFollowRequest.getUserId()).build();
+        Long userId = null;
+        try {
+            userId = getCurrentUserId();
+        } catch (AuthenticationException e) {
+            throw new RuntimeException(e);
+        }
+        // 만약 유저 존재 안할 경우 에러
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+
         for (Long creatorId : userFollowRequest.getCreatorId()) {
             User creator = User.builder().userId(creatorId).build();
-            System.out.println(user.getUserId());
-            follow followCreator = follow.builder()
+            Follow followCreator = Follow.builder()
                     .user(user)
                     .creator(creator)
                     .build();
             followRepository.save(followCreator);
         }
 
+        User userUpdate = User.builder().userId(userId).userRole(UserRole.FOLLOWED_USER).build();
+        userRepository.save(userUpdate);
+
         return true;
     }
 
     public Boolean interestBulk(UserInterestRequest userInterestRequest) throws Exception {
-        User user = User.builder().userId(userInterestRequest.getUserId()).build();
+        Long userId = null;
+        try {
+            userId = getCurrentUserId();
+        } catch (AuthenticationException e) {
+            throw new RuntimeException(e);
+        }
+
+        // 만약 유저 존재 안할 경우 에러
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
         for (Long interestId : userInterestRequest.getGenreId()) {
             Interest interest = Interest.builder().interestId(interestId).build();
             UserInterest userInterest = UserInterest.builder()
@@ -172,6 +202,9 @@ public class UserService {
                     .build();
             userInterestRepository.save(userInterest);
         }
+
+        User userUpdate = User.builder().userId(userId).userRole(UserRole.INTERESTED_USER).build();
+        userRepository.save(userUpdate);
         return true;
     }
 
