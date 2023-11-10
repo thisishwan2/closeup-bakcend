@@ -93,10 +93,10 @@ VALUES (now(), 4, '래플4 이미지 url', '원래 이미지 이름1', '업로�
 
 
 -- 래플 판매자 설정
-UPDATE raffle_product SET user_id = 1 WHERE raffle_product_id = 2;
-UPDATE raffle_product SET user_id = 2 WHERE raffle_product_id = 3;
-UPDATE raffle_product SET user_id = 3 WHERE raffle_product_id = 4;
-UPDATE raffle_product SET user_id = 4 WHERE raffle_product_id = 5;
+UPDATE raffle_product SET user_id = 1 WHERE raffle_product_id = 1;
+UPDATE raffle_product SET user_id = 2 WHERE raffle_product_id = 2;
+UPDATE raffle_product SET user_id = 3 WHERE raffle_product_id = 3;
+UPDATE raffle_product SET user_id = 4 WHERE raffle_product_id = 4;
 
 -- 팔로우 설정
 INSERT INTO follow (user_id, creator_id) VALUES (9, 1);
