@@ -101,8 +101,7 @@ public class UserService {
     public User getCurrentUser() {
         try {
             return userRepository
-                    .findById(SecurityUtils.getCurrentUserId())
-                    .orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+                    .findById(SecurityUtils.getCurrentUserId()).get();
         } catch (Exception e) {
             throw new CustomException(Result.NOTFOUND_USER);
         }
