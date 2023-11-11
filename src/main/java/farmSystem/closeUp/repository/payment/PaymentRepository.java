@@ -1,4 +1,4 @@
-package farmSystem.closeUp.repository;
+package farmSystem.closeUp.repository.payment;
 
 import farmSystem.closeUp.domain.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
