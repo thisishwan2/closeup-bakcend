@@ -39,8 +39,11 @@ public enum Result {
     CONVERTING_FAILED(400, "파일 변환에 실패했습니다."),
 
     // 래플
-    NOTFOUND_RAFFLE(404, "해당 래플이 존재하지 않습니다.");
+    NOTFOUND_RAFFLE(404, "해당 래플이 존재하지 않습니다."),
 
+    // 포인트
+    LESS_THAN_MINIMUM_POINT(400, "5000원 이상부터 충전이 가능합니다."),
+    NOT_EQUAL_AMOUNT(400, "결제 금액이 일치하지 않습니다.");
 
     private final String message;
     private final int status;
