@@ -135,7 +135,7 @@ public class UserService {
         try {
             userId = getCurrentUserId();
         } catch (AuthenticationException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(Result.INVALID_ACCESS);
         }
 
         // 만약 유저 존재 안할 경우 에러
@@ -164,7 +164,7 @@ public class UserService {
         try {
             userId = getCurrentUserId();
         } catch (AuthenticationException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(Result.INVALID_ACCESS);
         }
         // 만약 유저 존재 안할 경우 에러
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
