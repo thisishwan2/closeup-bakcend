@@ -73,6 +73,22 @@ public class User extends BaseEntity{
         this.birthDay = birthDay;
     }
 
+    public void update(Long id, UserRole userRole) {
+        this.userId = id;
+        this.userRole = userRole;
+    }
+
+    public void update(Long id, String nickname, String address, String phoneNumber, String profileImageUrl, String gender, String birthDay, UserRole userRole) {
+        this.userId = id;
+        this.nickName = nickname;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.profileImageUrl = profileImageUrl;
+        this.gender = gender;
+        this.birthDay = birthDay;
+        this.userRole = userRole;
+    }
+
     public void setPlatform(Platform platform) {
         this.platform = platform;
     }

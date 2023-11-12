@@ -139,24 +139,25 @@ public class UserService {
         }
 
         // 만약 유저 존재 안할 경우 에러
-        userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
 
         // 닉네임 중복 체크
         userRepository.findByNickName(userInfoRequest.getNickname()).orElseThrow(() -> new CustomException(Result.USERNAME_DUPLICATION));
 
         // 회원가입 레벨 통과
-        User userUpdate = User.builder()
-                .userId(userId)
-                .nickName(userInfoRequest.getNickname())
-                .address(userInfoRequest.getAddress())
-                .phoneNumber(userInfoRequest.getPhoneNumber())
-                .profileImageUrl(userInfoRequest.getProfileImageUrl())
-                .gender(userInfoRequest.getGender())
-                .birthDay(userInfoRequest.getBirthday())
-                .userRole(UserRole.SIGNUP_USER)
-                .build();
-        userRepository.save(userUpdate);
-        return userUpdate;
+        user.update(
+            userId,
+            userInfoRequest.getNickname(),
+            userInfoRequest.getAddress(),
+            userInfoRequest.getPhoneNumber(),
+            userInfoRequest.getProfileImageUrl(),
+            userInfoRequest.getGender(),
+            userInfoRequest.getBirthday(),
+            UserRole.SIGNUP_USER
+        );
+
+        userRepository.save(user);
+        return user;
     }
 
     public Boolean followBulk(UserFollowRequest userFollowRequest) throws Exception {
@@ -178,8 +179,8 @@ public class UserService {
             followRepository.save(followCreator);
         }
 
-        User userUpdate = User.builder().userId(userId).userRole(UserRole.FOLLOWED_USER).build();
-        userRepository.save(userUpdate);
+        user.update(userId, UserRole.FOLLOWED_USER);
+        userRepository.save(user);
 
         return true;
     }
@@ -189,7 +190,7 @@ public class UserService {
         try {
             userId = getCurrentUserId();
         } catch (AuthenticationException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(Result.INVALID_ACCESS);
         }
 
         // 만약 유저 존재 안할 경우 에러
@@ -203,8 +204,9 @@ public class UserService {
             userInterestRepository.save(userInterest);
         }
 
-        User userUpdate = User.builder().userId(userId).userRole(UserRole.INTERESTED_USER).build();
-        userRepository.save(userUpdate);
+        user.update(userId, UserRole.INTERESTED_USER);
+        userRepository.save(user);
+
         return true;
     }
 
