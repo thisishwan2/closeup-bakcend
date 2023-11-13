@@ -16,8 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static farmSystem.closeUp.common.Result.INVALID_ACCESS;
-
 @Component
 @RequiredArgsConstructor
 public class JwtExceptionFilter extends OncePerRequestFilter {

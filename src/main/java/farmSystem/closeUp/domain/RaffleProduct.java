@@ -5,13 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -38,6 +34,8 @@ public class RaffleProduct extends BaseEntity{
     @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
     private LocalDateTime winningDate;
 
+    private String thumbnailImageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User creator; //크리에이터
@@ -47,7 +45,7 @@ public class RaffleProduct extends BaseEntity{
     private Category category;
 
     @Builder
-    public RaffleProduct(Long raffleProductId, String title, LocalDateTime startDate, LocalDateTime endDate, String content, Long winnerCount, Long rafflePrice, String address, LocalDateTime winningDate) {
+    public RaffleProduct(Long raffleProductId, String title, LocalDateTime startDate, LocalDateTime endDate, String content, Long winnerCount, Long rafflePrice, String address, LocalDateTime winningDate, String thumbnailImageUrl) {
         this.raffleProductId = raffleProductId;
         this.title = title;
         this.startDate = startDate;
@@ -57,5 +55,6 @@ public class RaffleProduct extends BaseEntity{
         this.rafflePrice = rafflePrice;
         this.address = address;
         this.winningDate = winningDate;
+        this.thumbnailImageUrl = thumbnailImageUrl;
     }
 }

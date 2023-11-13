@@ -5,12 +5,15 @@ import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.config.jwt.JwtService;
 import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.config.security.SecurityUtils;
-import farmSystem.closeUp.domain.UserRole;
-import farmSystem.closeUp.dto.user.response.PostTokenReissueResponse;
-import farmSystem.closeUp.domain.User;
-import farmSystem.closeUp.dto.request.UserRequestTest;
-import farmSystem.closeUp.dto.response.UserResponseTest;
+import farmSystem.closeUp.domain.*;
+import farmSystem.closeUp.dto.user.request.UserFollowRequest;
+import farmSystem.closeUp.dto.user.request.UserInfoRequest;
+import farmSystem.closeUp.dto.user.request.UserInterestRequest;
 import farmSystem.closeUp.dto.user.response.GetSearchCreatorResponse;
+import farmSystem.closeUp.dto.user.response.PostSignUpResponse;
+import farmSystem.closeUp.dto.user.response.PostTokenReissueResponse;
+import farmSystem.closeUp.repository.UserInterestRepository;
+import farmSystem.closeUp.repository.follow.FollowRepository;
 import farmSystem.closeUp.repository.user.UserRepository;
 import farmSystem.closeUp.repository.user.UserRepositoryImpl;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +37,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserRepositoryImpl userRepositoryImpl;
+    private final FollowRepository followRepository;
+    private final UserInterestRepository userInterestRepository;
     private final RedisUtils redisUtils;
     private final JwtService jwtService;
 
@@ -101,21 +105,20 @@ public class UserService {
     public User getCurrentUser() {
         try {
             return userRepository
-                    .findById(SecurityUtils.getCurrentUserId())
-                    .orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+                    .findById(SecurityUtils.getCurrentUserId()).get();
         } catch (Exception e) {
             throw new CustomException(Result.NOTFOUND_USER);
         }
     }
 
     // 추가 회원가입
-    @Transactional
-    public UserResponseTest signUp(UserRequestTest userRequestTest){
-        User currentUser = getCurrentUser();
-        currentUser.signUp(userRequestTest.getNickname(), userRequestTest.getAddress(), userRequestTest.getPhoneNumber(), userRequestTest.getProfileImageUrl(), userRequestTest.getGender(), userRequestTest.getBirthday());
-        currentUser.authorizeUser(UserRole.USER);
-        return UserResponseTest.builder().userId(currentUser.getUserId()).build();
-    }
+//    @Transactional
+//    public UserResponseTest signUp(UserRequestTest userRequestTest){
+//        User currentUser = getCurrentUser();
+//        currentUser.signUp(userRequestTest.getNickname(), userRequestTest.getAddress(), userRequestTest.getPhoneNumber(), userRequestTest.getProfileImageUrl(), userRequestTest.getGender(), userRequestTest.getBirthday());
+//        currentUser.authorizeUser(UserRole.USER);
+//        return UserResponseTest.builder().userId(currentUser.getUserId()).build();
+//    }
 
     //권한 확인용
     @Transactional(readOnly = true)
@@ -123,6 +126,93 @@ public class UserService {
         Optional<User> byId = userRepository.findById(userId);
         User user = byId.get();
         return user;
+    }
+
+    @Transactional
+    public PostSignUpResponse signUp(UserInfoRequest userInfoRequest){
+        Long userId = null;
+        log.info("sign up");
+        try {
+            userId = getCurrentUserId();
+        } catch (AuthenticationException e) {
+            throw new CustomException(Result.INVALID_ACCESS);
+        }
+        log.info("sign up");
+
+        // 만약 유저 존재 안할 경우 에러
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+        log.info("sign up");
+
+        // 닉네임 중복 체크
+        if(userRepository.existsByNickName(userInfoRequest.getNickname())){
+            new CustomException(Result.USERNAME_DUPLICATION);
+        }
+//        userRepository.findByNickName(userInfoRequest.getNickname()).orElseThrow(() -> new CustomException(Result.USERNAME_DUPLICATION));
+//        log.info("sign up");
+
+        // 회원가입 레벨 통과
+        user.update(
+            userId,
+            userInfoRequest.getNickname(),
+            userInfoRequest.getAddress(),
+            userInfoRequest.getPhoneNumber(),
+            userInfoRequest.getProfileImageUrl(),
+            userInfoRequest.getGender(),
+            userInfoRequest.getBirthday(),
+            UserRole.SIGNUP_USER
+        );
+        log.info("sign up");
+
+        return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
+    }
+
+    public PostSignUpResponse followBulk(UserFollowRequest userFollowRequest){
+        Long userId = null;
+        try {
+            userId = getCurrentUserId();
+        } catch (AuthenticationException e) {
+            throw new CustomException(Result.INVALID_ACCESS);
+        }
+        // 만약 유저 존재 안할 경우 에러
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+
+        for (Long creatorId : userFollowRequest.getCreatorId()) {
+            User creator = User.builder().userId(creatorId).build();
+            Follow followCreator = Follow.builder()
+                    .user(user)
+                    .creator(creator)
+                    .build();
+            followRepository.save(followCreator);
+        }
+
+        user.update(userId, UserRole.FOLLOWED_USER);
+
+        return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
+    }
+
+    public PostSignUpResponse interestBulk(UserInterestRequest userInterestRequest){
+        Long userId = null;
+        try {
+            userId = getCurrentUserId();
+        } catch (AuthenticationException e) {
+            throw new CustomException(Result.INVALID_ACCESS);
+        }
+
+        // 만약 유저 존재 안할 경우 에러
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+        for (Long interestId : userInterestRequest.getGenreId()) {
+            Interest interest = Interest.builder().interestId(interestId).build();
+            UserInterest userInterest = UserInterest.builder()
+                    .user(user)
+                    .interest(interest)
+                    .build();
+            userInterestRepository.save(userInterest);
+        }
+
+        user.update(userId, UserRole.USER);
+        userRepository.save(user);
+
+        return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
     }
 
 }
