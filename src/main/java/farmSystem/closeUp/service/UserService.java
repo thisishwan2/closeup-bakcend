@@ -12,6 +12,7 @@ import farmSystem.closeUp.dto.request.UserInterestRequest;
 import farmSystem.closeUp.dto.request.UserRequestTest;
 import farmSystem.closeUp.dto.response.UserResponseTest;
 import farmSystem.closeUp.dto.user.response.GetSearchCreatorResponse;
+import farmSystem.closeUp.dto.user.response.PostSignUpResponse;
 import farmSystem.closeUp.dto.user.response.PostTokenReissueResponse;
 import farmSystem.closeUp.repository.UserInterestRepository;
 import farmSystem.closeUp.repository.follow.FollowRepository;
@@ -113,13 +114,13 @@ public class UserService {
     }
 
     // 추가 회원가입
-    @Transactional
-    public UserResponseTest signUp(UserRequestTest userRequestTest){
-        User currentUser = getCurrentUser();
-        currentUser.signUp(userRequestTest.getNickname(), userRequestTest.getAddress(), userRequestTest.getPhoneNumber(), userRequestTest.getProfileImageUrl(), userRequestTest.getGender(), userRequestTest.getBirthday());
-        currentUser.authorizeUser(UserRole.USER);
-        return UserResponseTest.builder().userId(currentUser.getUserId()).build();
-    }
+//    @Transactional
+//    public UserResponseTest signUp(UserRequestTest userRequestTest){
+//        User currentUser = getCurrentUser();
+//        currentUser.signUp(userRequestTest.getNickname(), userRequestTest.getAddress(), userRequestTest.getPhoneNumber(), userRequestTest.getProfileImageUrl(), userRequestTest.getGender(), userRequestTest.getBirthday());
+//        currentUser.authorizeUser(UserRole.USER);
+//        return UserResponseTest.builder().userId(currentUser.getUserId()).build();
+//    }
 
     //권한 확인용
     @Transactional(readOnly = true)
@@ -129,19 +130,27 @@ public class UserService {
         return user;
     }
 
-    public User signUp(UserInfoRequest userInfoRequest) throws Exception {
+    @Transactional
+    public PostSignUpResponse signUp(UserInfoRequest userInfoRequest){
         Long userId = null;
+        log.info("sign up");
         try {
             userId = getCurrentUserId();
         } catch (AuthenticationException e) {
             throw new CustomException(Result.INVALID_ACCESS);
         }
+        log.info("sign up");
 
         // 만약 유저 존재 안할 경우 에러
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+        log.info("sign up");
 
         // 닉네임 중복 체크
-        userRepository.findByNickName(userInfoRequest.getNickname()).orElseThrow(() -> new CustomException(Result.USERNAME_DUPLICATION));
+        if(userRepository.existsByNickName(userInfoRequest.getNickname())){
+            new CustomException(Result.USERNAME_DUPLICATION);
+        }
+//        userRepository.findByNickName(userInfoRequest.getNickname()).orElseThrow(() -> new CustomException(Result.USERNAME_DUPLICATION));
+//        log.info("sign up");
 
         // 회원가입 레벨 통과
         user.update(
@@ -154,12 +163,12 @@ public class UserService {
             userInfoRequest.getBirthday(),
             UserRole.SIGNUP_USER
         );
+        log.info("sign up");
 
-        userRepository.save(user);
-        return user;
+        return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
     }
 
-    public Boolean followBulk(UserFollowRequest userFollowRequest) throws Exception {
+    public PostSignUpResponse followBulk(UserFollowRequest userFollowRequest){
         Long userId = null;
         try {
             userId = getCurrentUserId();
@@ -179,12 +188,11 @@ public class UserService {
         }
 
         user.update(userId, UserRole.FOLLOWED_USER);
-        userRepository.save(user);
 
-        return true;
+        return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
     }
 
-    public Boolean interestBulk(UserInterestRequest userInterestRequest) throws Exception {
+    public PostSignUpResponse interestBulk(UserInterestRequest userInterestRequest){
         Long userId = null;
         try {
             userId = getCurrentUserId();
@@ -206,7 +214,7 @@ public class UserService {
         user.update(userId, UserRole.INTERESTED_USER);
         userRepository.save(user);
 
-        return true;
+        return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
     }
 
 }
