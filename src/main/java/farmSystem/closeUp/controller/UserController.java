@@ -2,8 +2,12 @@ package farmSystem.closeUp.controller;
 
 
 import farmSystem.closeUp.common.CommonResponse;
-import farmSystem.closeUp.dto.user.response.PostTokenReissueResponse;
+import farmSystem.closeUp.domain.User;
+import farmSystem.closeUp.dto.request.UserFollowRequest;
+import farmSystem.closeUp.dto.request.UserInfoRequest;
+import farmSystem.closeUp.dto.request.UserInterestRequest;
 import farmSystem.closeUp.dto.user.response.GetSearchCreatorResponse;
+import farmSystem.closeUp.dto.user.response.PostTokenReissueResponse;
 import farmSystem.closeUp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +42,20 @@ public class UserController {
     @GetMapping("/user/platforms/{platformId}")
     public CommonResponse<Slice<GetSearchCreatorResponse>> searchCreatorByPlatform(@PathVariable("platformId") Long platformId, Pageable pageable) {
         return CommonResponse.success(userService.searchCreatorByPlatform(platformId, pageable));
+    }
+
+    @PostMapping(value = "/user/sign-up")
+    public CommonResponse<User> signUp(@RequestBody @Valid final UserInfoRequest userInfoRequest) throws Exception {
+        return CommonResponse.success(userService.signUp(userInfoRequest));
+    }
+
+    @PostMapping(value = "/user/sign-up/follow")
+    public CommonResponse<Boolean> signUpFollowBulk(@RequestBody @Valid final UserFollowRequest userFollowRequest) throws Exception {
+        return CommonResponse.success(userService.followBulk(userFollowRequest));
+    }
+
+    @PostMapping(value = "/user/sign-up/interest")
+    public CommonResponse<Boolean> signUpInterestBulk(@RequestBody @Valid final UserInterestRequest userInterestRequest) throws Exception {
+        return CommonResponse.success(userService.interestBulk(userInterestRequest));
     }
 }

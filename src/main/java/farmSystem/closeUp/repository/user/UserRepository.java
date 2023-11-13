@@ -4,6 +4,7 @@ import farmSystem.closeUp.domain.SocialType;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.domain.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 import java.util.Optional;
 
