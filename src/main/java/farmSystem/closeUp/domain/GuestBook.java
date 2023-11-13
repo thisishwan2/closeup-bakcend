@@ -19,12 +19,12 @@ public class GuestBook extends BaseEntity{
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "creator_id", referencedColumnName =  "user_id")
+    private User creator; //크리에이터
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id")
-    private Creator creator;
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user; //일반 유저
 
     @Builder
     public GuestBook(Long guestBookId, String content){

@@ -17,17 +17,19 @@ public class Notification extends BaseEntity{
     @Column(name = "notification_id")
     private Long notificationId;
 
-    private String notificationTitle;
+    private String notificationTitle; // 제목이 필요한가?
     private String notificationContent;
+    private String notificationThumbnailUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id")
-    private Creator creator;
+    @JoinColumn(name = "user_id")
+    private User creator; // 크리에이터
 
     @Builder
-    public Notification(Long notificationId, String notificationTitle, String notificationContent){
+    public Notification(Long notificationId, String notificationTitle, String notificationContent, String notificationThumbnailUrl){
         this.notificationId = notificationId;
         this.notificationTitle = notificationTitle;
         this.notificationContent = notificationContent;
+        this.notificationThumbnailUrl = notificationThumbnailUrl;
     }
 }

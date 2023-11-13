@@ -5,9 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -20,20 +20,32 @@ public class RaffleProduct extends BaseEntity{
     private Long raffleProductId;
 
     private String title;
-    private String startDate;
-    private String endDate;
+
+    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
+    private LocalDateTime startDate;
+
+    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
+    private LocalDateTime endDate;
+
     private String content;
     private Long winnerCount;
     private Long rafflePrice;
     private String address;
-    private String winningDate;
+    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
+    private LocalDateTime winningDate;
+
+    private String thumbnailImageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="creator_id")
-    private Creator creator;
+    @JoinColumn(name="user_id")
+    private User creator; //크리에이터
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="category_id")
+    private Category category;
 
     @Builder
-    public RaffleProduct(Long raffleProductId, String title, String startDate, String endDate, String content, Long winnerCount, Long rafflePrice, String address, String winningDate) {
+    public RaffleProduct(Long raffleProductId, String title, LocalDateTime startDate, LocalDateTime endDate, String content, Long winnerCount, Long rafflePrice, String address, LocalDateTime winningDate, String thumbnailImageUrl) {
         this.raffleProductId = raffleProductId;
         this.title = title;
         this.startDate = startDate;
@@ -43,5 +55,6 @@ public class RaffleProduct extends BaseEntity{
         this.rafflePrice = rafflePrice;
         this.address = address;
         this.winningDate = winningDate;
+        this.thumbnailImageUrl = thumbnailImageUrl;
     }
 }
