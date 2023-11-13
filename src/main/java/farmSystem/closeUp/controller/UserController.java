@@ -2,10 +2,9 @@ package farmSystem.closeUp.controller;
 
 
 import farmSystem.closeUp.common.CommonResponse;
-import farmSystem.closeUp.domain.User;
-import farmSystem.closeUp.dto.request.UserFollowRequest;
-import farmSystem.closeUp.dto.request.UserInfoRequest;
-import farmSystem.closeUp.dto.request.UserInterestRequest;
+import farmSystem.closeUp.dto.user.request.UserFollowRequest;
+import farmSystem.closeUp.dto.user.request.UserInfoRequest;
+import farmSystem.closeUp.dto.user.request.UserInterestRequest;
 import farmSystem.closeUp.dto.user.response.GetSearchCreatorResponse;
 import farmSystem.closeUp.dto.user.response.PostSignUpResponse;
 import farmSystem.closeUp.dto.user.response.PostTokenReissueResponse;

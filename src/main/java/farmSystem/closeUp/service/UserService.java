@@ -6,11 +6,9 @@ import farmSystem.closeUp.config.jwt.JwtService;
 import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.config.security.SecurityUtils;
 import farmSystem.closeUp.domain.*;
-import farmSystem.closeUp.dto.request.UserFollowRequest;
-import farmSystem.closeUp.dto.request.UserInfoRequest;
-import farmSystem.closeUp.dto.request.UserInterestRequest;
-import farmSystem.closeUp.dto.request.UserRequestTest;
-import farmSystem.closeUp.dto.response.UserResponseTest;
+import farmSystem.closeUp.dto.user.request.UserFollowRequest;
+import farmSystem.closeUp.dto.user.request.UserInfoRequest;
+import farmSystem.closeUp.dto.user.request.UserInterestRequest;
 import farmSystem.closeUp.dto.user.response.GetSearchCreatorResponse;
 import farmSystem.closeUp.dto.user.response.PostSignUpResponse;
 import farmSystem.closeUp.dto.user.response.PostTokenReissueResponse;
@@ -211,7 +209,7 @@ public class UserService {
             userInterestRepository.save(userInterest);
         }
 
-        user.update(userId, UserRole.INTERESTED_USER);
+        user.update(userId, UserRole.USER);
         userRepository.save(user);
 
         return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
