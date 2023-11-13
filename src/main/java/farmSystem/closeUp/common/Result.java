@@ -28,7 +28,7 @@ public enum Result {
     INVALID_PASSWORD(400,  "비밀번호를 4자 이상 입력하세요"),
     INVALID_USERNAME(400,  "알파벳 대소문자와 숫자로만 입력하세요"),
     NOT_AUTHORIZED(403, "작성자만 수정 및 삭제를 할 수 있습니다."),
-    USERNAME_DUPLICATION(400, "이미 등록된 아이디입니다."),
+    USERNAME_DUPLICATION(400, "이미 등록된 닉네임입니다."),
     LOGIN_INPUT_INVALID(400, "로그인 정보를 다시 확인해주세요."),
     NOTFOUND_USER(404,  "유저를 찾을 수 없습니다."),
     UNAUTHORIZED_TOKEN(401, "유효한 토큰이 없습니다."),
