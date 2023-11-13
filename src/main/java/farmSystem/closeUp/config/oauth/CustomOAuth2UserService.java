@@ -1,10 +1,8 @@
 package farmSystem.closeUp.config.oauth;
 
-import farmSystem.closeUp.config.oauth.CustomOAuth2User;
-import farmSystem.closeUp.config.oauth.OAuthAttributes;
 import farmSystem.closeUp.domain.SocialType;
 import farmSystem.closeUp.domain.User;
-import farmSystem.closeUp.repository.UserRepository;
+import farmSystem.closeUp.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
