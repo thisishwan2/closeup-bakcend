@@ -12,7 +12,6 @@ import farmSystem.closeUp.repository.raffle.RaffleRepository;
 import farmSystem.closeUp.repository.follow.FollowRepository;
 import farmSystem.closeUp.repository.raffleProduct.RaffleProductRepository;
 import farmSystem.closeUp.repository.raffleProduct.RaffleProductRepositoryImpl;
-import farmSystem.closeUp.repository.reffle.RaffleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
