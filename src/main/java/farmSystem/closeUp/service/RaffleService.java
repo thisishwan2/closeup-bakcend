@@ -5,8 +5,7 @@ import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.domain.Raffle;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.domain.WinningInfo;
-import farmSystem.closeUp.dto.raffle.response.GetRafflesResponse;
-import farmSystem.closeUp.dto.raffle.response.GetRafflesUserResponse;
+import farmSystem.closeUp.dto.raffle.response.*;
 import farmSystem.closeUp.repository.raffle.RaffleRepository;
 import farmSystem.closeUp.repository.raffle.RaffleRepositoryImpl;
 import farmSystem.closeUp.repository.user.UserRepository;
@@ -97,6 +96,52 @@ public class RaffleService {
                     .build();
             result.add(getRafflesResponse);
         }
+
+        return result;
+    }
+
+    public GetUserRaffleDetailResponse getRaffleDetail(Long raffleId) {
+        Raffle raffle = raffleRepository.findByRaffleId(raffleId).orElseThrow(() -> new CustomException(Result.NOTFOUND_RAFFLE));
+
+        if (raffle.getWinningInfo().equals(WinningInfo.WINNING)) {
+            if (raffle.getRaffleProduct().getCategory().getParent().equals(1)) {
+                GetUserRaffleDetailTangible result = GetUserRaffleDetailTangible.builder()
+                        .winningInfo(raffle.getWinningInfo())
+                        .raffleCreateDate(raffle.getCreatedAt())
+                        .raffleProductStartDate(raffle.getRaffleProduct().getStartDate())
+                        .raffleProductEndDate(raffle.getRaffleProduct().getEndDate())
+                        .raffleProductTitle(raffle.getRaffleProduct().getTitle())
+                        .raffleProductThumbnailUrl(raffle.getRaffleProduct().getThumbnailImageUrl())
+                        .raffleProductContent(raffle.getRaffleProduct().getContent())
+                        .raffleUserAddress(raffle.getUser().getAddress())
+                        .build();
+                return result;
+            } else {
+                GetUserRaffleDetailIntangibleResponse result = GetUserRaffleDetailIntangibleResponse.builder()
+                        .winningInfo(raffle.getWinningInfo())
+                        .raffleCreateDate(raffle.getCreatedAt())
+                        .raffleProductStartDate(raffle.getRaffleProduct().getStartDate())
+                        .raffleProductEndDate(raffle.getRaffleProduct().getEndDate())
+                        .raffleProductTitle(raffle.getRaffleProduct().getTitle())
+                        .raffleProductThumbnailUrl(raffle.getRaffleProduct().getThumbnailImageUrl())
+                        .raffleProductContent(raffle.getRaffleProduct().getContent())
+                        .raffleWinningDate(raffle.getRaffleProduct().getWinningDate())
+                        .build();
+                return result;
+            }
+        }
+
+
+        GetUserRaffleDetailResponse result = GetUserRaffleDetailResponse.builder()
+                .winningInfo(raffle.getWinningInfo())
+                .raffleCreateDate(raffle.getCreatedAt())
+                .raffleProductStartDate(raffle.getRaffleProduct().getStartDate())
+                .raffleProductEndDate(raffle.getRaffleProduct().getEndDate())
+                .raffleProductTitle(raffle.getRaffleProduct().getTitle())
+                .raffleProductThumbnailUrl(raffle.getRaffleProduct().getThumbnailImageUrl())
+                .raffleProductContent(raffle.getRaffleProduct().getContent())
+                .build();
+
 
         return result;
     }

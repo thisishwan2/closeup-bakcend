@@ -17,16 +17,4 @@ public class GetRafflesUserResponse {
     private String raffleThumbnailUrl;
     private Long creatorId;
     private String creatorName;
-
-    public static GetRafflesUserResponse of(Long raffleId, WinningInfo winningInfo, LocalDateTime raffleCreatedAt, LocalDateTime raffleEndAt, String raffleThumbnailUrl, Long creatorId, String creatorName) {
-        return GetRafflesUserResponse.builder()
-                .raffleId(raffleId)
-                .winningInfo(winningInfo)
-                .raffleCreatedAt(raffleCreatedAt)
-                .raffleEndAt(raffleEndAt)
-                .raffleThumbnailUrl(raffleThumbnailUrl)
-                .creatorId(creatorId)
-                .creatorName(creatorName)
-                .build();
-    }
 }
