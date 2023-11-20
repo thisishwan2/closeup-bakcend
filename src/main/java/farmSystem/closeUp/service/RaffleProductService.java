@@ -3,10 +3,11 @@ package farmSystem.closeUp.service;
 import farmSystem.closeUp.common.CustomException;
 import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.domain.*;
-import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductPaymentResponse;
+import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductApplyResponse;
 import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductResponse;
 import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductsResponse;
 import farmSystem.closeUp.dto.raffleProduct.response.PostRaffleProductResponse;
+import farmSystem.closeUp.repository.PointHistoryRepository;
 import farmSystem.closeUp.repository.raffle.RaffleRepository;
 
 import farmSystem.closeUp.repository.follow.FollowRepository;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +38,7 @@ public class RaffleProductService {
     private final FollowRepository followRepository;
     private final UserService userService;
     private final RaffleRepository raffleRepository;
+    private final PointHistoryRepository pointHistoryRepository;
 
     // 회원님이 팔로우하는 크리에이터 래플 목록 조회
     @Transactional(readOnly = true)
@@ -96,39 +99,73 @@ public class RaffleProductService {
         return getRaffleProductResponse;
     }
 
-    // 래플 결제 페이지(주문 정보 조회)
+    // 래플 응모 페이지(주문 정보 조회)
     @Transactional(readOnly = true)
-    public GetRaffleProductPaymentResponse getOrder(Long raffleProductId) {
+    public GetRaffleProductApplyResponse getOrder(Long raffleProductId) {
 
         User user = userService.getCurrentUser();
         RaffleProduct raffleProduct = raffleProductRepository.findById(raffleProductId).orElseThrow(() -> new CustomException(Result.NOTFOUND_RAFFLE));
 
-        GetRaffleProductPaymentResponse getRaffleProductPaymentResponse =
-                GetRaffleProductPaymentResponse.of(raffleProduct.getRaffleProductId(), raffleProduct.getTitle(), raffleProduct.getRafflePrice(), raffleProduct.getThumbnailImageUrl(), user.getNickName(), user.getPhoneNumber(), user.getAddress());
+        // 만약 해당 래플 상품의 응모 마감기한이 지났다면 응모 페이지 리다이렉트 불가
+        if (raffleProduct.getEndDate().isBefore(LocalDateTime.now())) {
+            throw new CustomException(Result.RAFFLE_END);
+        }
 
-        return getRaffleProductPaymentResponse;
+        GetRaffleProductApplyResponse getRaffleProductApplyResponse =
+                GetRaffleProductApplyResponse.of(raffleProduct.getRaffleProductId(), raffleProduct.getTitle(), raffleProduct.getRafflePrice(), raffleProduct.getThumbnailImageUrl(), user.getNickName(), user.getPhoneNumber(), user.getAddress(), user.getPoint());
+
+        return getRaffleProductApplyResponse;
     }
 
-    // 래플 신청 완료(결제 후 동작)
+    // 래플 신청 완료(포인트 차감)
     @Transactional
     public PostRaffleProductResponse postRaffleProduct(Long raffleProductId) {
 
         // 현재 회원 조회
         User user = userService.getCurrentUser();
+
+        // 래플 상품 조회
         RaffleProduct raffleProduct = raffleProductRepository.findById(raffleProductId).orElseThrow(() -> new CustomException(Result.NOTFOUND_RAFFLE));
+
+        // 만약 해당 래플 상품의 응모 마감기한이 지났다면 신청 불가능
+        if (raffleProduct.getEndDate().isBefore(LocalDateTime.now())) {
+            throw new CustomException(Result.RAFFLE_END);
+        }
+
+        if (user.getPoint() - raffleProduct.getRafflePrice()<0){
+            throw new CustomException(Result.NOT_ENOUGH_POINT);
+        }
 
         // 래플 신청 처리
         Raffle raffle = Raffle.builder()
                 .winningInfo(WinningInfo.NONE) //아직 아무 상태가 아님
                 .build();
-
         raffleRepository.save(raffle);
-
-        // 포인트 차감
-
         raffle.setRaffleProduct(raffleProduct);
         raffle.setUser(user);
 
+        // 포인트 차감
+        user.minusPoint(raffleProduct.getRafflePrice());
+
+        // 포인트 history 처리
+        PointHistory pointHistory = PointHistory.builder()
+                .minusPoint(raffleProduct.getRafflePrice())
+                .pointHistoryName(raffleProduct.getTitle() + "응모")
+                .pointEventAt(LocalDateTime.now())
+                .build();
+        pointHistoryRepository.save(pointHistory);
+        pointHistory.setUser(user);
+
         return PostRaffleProductResponse.of(raffleProduct.getRaffleProductId(), raffleProduct.getRafflePrice(), raffleProduct.getTitle(), user.getAddress());
+    }
+
+    // 크리에이터 래플 조회 (무한 스크롤)
+    @Transactional(readOnly = true)
+    public Slice<GetRaffleProductsResponse> getCreatorRaffleProducts(Long creatorId, Pageable pageable) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        Slice<GetRaffleProductsResponse> findRaffles = raffleProductRepositoryImpl.findCreatorRaffleProducts(creatorId, pageable);
+
+        return findRaffles;
     }
 }
