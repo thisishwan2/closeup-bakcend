@@ -9,6 +9,7 @@ import farmSystem.closeUp.dto.raffle.response.*;
 import farmSystem.closeUp.repository.raffle.RaffleRepository;
 import farmSystem.closeUp.repository.raffle.RaffleRepositoryImpl;
 import farmSystem.closeUp.repository.user.UserRepository;
+import farmSystem.closeUp.dto.raffle.response.GetRafflesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -30,16 +31,6 @@ public class RaffleService {
     private final RaffleRepositoryImpl raffleRepositoryImpl;
     private final UserService userService;
     private final UserRepository userRepository;
-
-    // 크리에이터 래플 조회 (무한 스크롤)
-    @Transactional
-    public Slice<GetRafflesResponse> getRaffles(Long creatorId, Pageable pageable) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-        Slice<GetRafflesResponse> findRaffles = raffleRepositoryImpl.findByRaffles(creatorId, pageable);
-
-        return findRaffles;
-    }
 
     // 유저의 당첨된 래플 조회
     public List<GetRafflesUserResponse> getRafflesUserWinning() {

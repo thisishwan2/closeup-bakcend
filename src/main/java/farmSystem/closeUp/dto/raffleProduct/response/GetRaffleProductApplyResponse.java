@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class GetRaffleProductPaymentResponse {
+public class GetRaffleProductApplyResponse {
 
     private Long raffleProductId;
     private String raffleProductTitle;
@@ -14,9 +14,10 @@ public class GetRaffleProductPaymentResponse {
     private String userNickname;
     private String userPhoneNumber;
     private String userAddress;
+    private Long userPoint;
 
-    public static GetRaffleProductPaymentResponse of(Long raffleProductId, String raffleProductTitle, Long raffleProductPrice, String raffleProductThumbnailImage, String userNickname, String userPhoneNumber, String userAddress) {
-        return GetRaffleProductPaymentResponse.builder()
+    public static GetRaffleProductApplyResponse of(Long raffleProductId, String raffleProductTitle, Long raffleProductPrice, String raffleProductThumbnailImage, String userNickname, String userPhoneNumber, String userAddress, Long userPoint) {
+        return GetRaffleProductApplyResponse.builder()
                 .raffleProductId(raffleProductId)
                 .raffleProductTitle(raffleProductTitle)
                 .raffleProductPrice(raffleProductPrice)
@@ -24,6 +25,7 @@ public class GetRaffleProductPaymentResponse {
                 .userNickname(userNickname)
                 .userPhoneNumber(userPhoneNumber)
                 .userAddress(userAddress)
+                .userPoint(userPoint)
                 .build();
     }
 }
