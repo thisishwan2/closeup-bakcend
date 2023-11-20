@@ -16,5 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RaffleController {
 
+    private final RaffleService raffleService;
 
+    // 크리에이터 래플 조회 (무한 스크롤)
+//    @GetMapping("/user/{creatorId}/raffles")
+//    public CommonResponse<Slice<GetRafflesResponse>> getRaffles(@PathVariable("creatorId") Long creatorId, Pageable pageable) {
+//        return CommonResponse.success(raffleService.getRaffles(creatorId, pageable));
+//    }
 }
