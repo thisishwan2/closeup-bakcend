@@ -7,7 +7,6 @@ import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.domain.WinningInfo;
 import farmSystem.closeUp.dto.raffle.response.*;
 import farmSystem.closeUp.repository.raffle.RaffleRepository;
-import farmSystem.closeUp.repository.raffle.RaffleRepositoryImpl;
 import farmSystem.closeUp.repository.user.UserRepository;
 import farmSystem.closeUp.dto.raffle.response.GetRafflesResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RaffleService {
     private final RaffleRepository raffleRepository;
-    private final RaffleRepositoryImpl raffleRepositoryImpl;
     private final UserService userService;
     private final UserRepository userRepository;
 
