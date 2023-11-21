@@ -7,7 +7,7 @@ import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductApplyRespon
 import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductResponse;
 import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductsResponse;
 import farmSystem.closeUp.dto.raffleProduct.response.PostRaffleProductResponse;
-import farmSystem.closeUp.repository.PointHistoryRepository;
+import farmSystem.closeUp.repository.pointHistory.PointHistoryRepository;
 import farmSystem.closeUp.repository.raffle.RaffleRepository;
 
 import farmSystem.closeUp.repository.follow.FollowRepository;
