@@ -45,7 +45,10 @@ public enum Result {
 
     // 포인트
     LESS_THAN_MINIMUM_POINT(400, "5000원 이상부터 충전이 가능합니다."),
-    NOT_EQUAL_AMOUNT(400, "결제 금액이 일치하지 않습니다.");
+    NOT_EQUAL_AMOUNT(400, "결제 금액이 일치하지 않습니다."),
+
+    // 방명록
+    NOTFOUND_GUESTBOOK(404, "해당 방명록이 존재하지 않습니다.");
 
     private final String message;
     private final int status;
