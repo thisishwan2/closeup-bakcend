@@ -6,6 +6,7 @@ import farmSystem.closeUp.domain.GuestBook;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.dto.guestbook.request.PatchGuestBooksRequest;
 import farmSystem.closeUp.dto.guestbook.request.PostGuestBooksRequest;
+import farmSystem.closeUp.dto.guestbook.response.DeleteGuestBooksResponse;
 import farmSystem.closeUp.dto.guestbook.response.GetGuestBooksResponse;
 import farmSystem.closeUp.dto.guestbook.response.PatchGuestBooksResponse;
 import farmSystem.closeUp.dto.guestbook.response.PostGuestBooksResponse;
@@ -76,6 +77,23 @@ public class GuestBookService {
         return PatchGuestBooksResponse.builder()
                 .guestBookId(guestBook.getGuestBookId())
                 .content(guestBook.getContent())
+                .build();
+    }
+
+    // 방명록 삭제
+    @Transactional
+    public DeleteGuestBooksResponse deleteGuestBook(Long guestbookId) {
+        User user = userService.getCurrentUser();
+        GuestBook guestBook = guestBookRepository.findById(guestbookId).orElseThrow(() -> new CustomException(Result.NOTFOUND_GUESTBOOK));
+
+        if(!guestBook.getUser().getUserId().equals(user.getUserId())) {
+            throw new CustomException(Result.NOT_AUTHORIZED);
+        }
+
+        guestBookRepository.delete(guestBook);
+
+        return DeleteGuestBooksResponse.builder()
+                .guestBookId(guestBook.getGuestBookId())
                 .build();
     }
 
