@@ -31,4 +31,13 @@ public class GuestBook extends BaseEntity{
         this.guestBookId = guestBookId;
         this.content = content;
     }
+
+    public void setUser(User user){
+        this.user = user;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
 }
