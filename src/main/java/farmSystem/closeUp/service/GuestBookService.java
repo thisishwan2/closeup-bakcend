@@ -41,6 +41,7 @@ public class GuestBookService {
         return findGuestBooks;
     }
 
+    // 방명록 작성
     @Transactional
     public PostGuestBooksResponse postGuestBook(Long creatorId, PostGuestBooksRequest request) {
         User user = userService.getCurrentUser();
@@ -61,6 +62,7 @@ public class GuestBookService {
                 .build();
     }
 
+    // 방명록 수정
     @Transactional
     public PatchGuestBooksResponse patchGuestBook(Long guestbookId, PatchGuestBooksRequest request) {
         User user = userService.getCurrentUser();
