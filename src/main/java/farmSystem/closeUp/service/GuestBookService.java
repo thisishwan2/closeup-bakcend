@@ -4,8 +4,10 @@ import farmSystem.closeUp.common.CustomException;
 import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.domain.GuestBook;
 import farmSystem.closeUp.domain.User;
+import farmSystem.closeUp.dto.guestbook.request.PatchGuestBooksRequest;
 import farmSystem.closeUp.dto.guestbook.request.PostGuestBooksRequest;
 import farmSystem.closeUp.dto.guestbook.response.GetGuestBooksResponse;
+import farmSystem.closeUp.dto.guestbook.response.PatchGuestBooksResponse;
 import farmSystem.closeUp.dto.guestbook.response.PostGuestBooksResponse;
 import farmSystem.closeUp.repository.guestbook.GuestBookRepository;
 import farmSystem.closeUp.repository.guestbook.GuestBookRepositoryImpl;
@@ -53,6 +55,25 @@ public class GuestBookService {
         guestBookRepository.save(guestBook);
 
         return PostGuestBooksResponse.builder()
+                .guestBookId(guestBook.getGuestBookId())
+                .content(guestBook.getContent())
+                .build();
+    }
+
+    @Transactional
+    public PatchGuestBooksResponse patchGuestBook(Long guestbookId, PatchGuestBooksRequest request) {
+        User user = userService.getCurrentUser();
+        GuestBook guestBook = guestBookRepository.findById(guestbookId).orElseThrow(() -> new CustomException(Result.NOTFOUND_GUESTBOOK));
+
+        if(!guestBook.getUser().getUserId().equals(user.getUserId())) {
+            throw new CustomException(Result.NOT_AUTHORIZED);
+        }
+
+        guestBook.setContent(request.getContent());
+
+        guestBookRepository.save(guestBook);
+
+        return PatchGuestBooksResponse.builder()
                 .guestBookId(guestBook.getGuestBookId())
                 .content(guestBook.getContent())
                 .build();
