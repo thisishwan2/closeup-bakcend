@@ -3,6 +3,7 @@ package farmSystem.closeUp.controller;
 import farmSystem.closeUp.common.CommonResponse;
 import farmSystem.closeUp.dto.guestbook.request.PatchGuestBooksRequest;
 import farmSystem.closeUp.dto.guestbook.request.PostGuestBooksRequest;
+import farmSystem.closeUp.dto.guestbook.response.DeleteGuestBooksResponse;
 import farmSystem.closeUp.dto.guestbook.response.GetGuestBooksResponse;
 import farmSystem.closeUp.dto.guestbook.response.PatchGuestBooksResponse;
 import farmSystem.closeUp.dto.guestbook.response.PostGuestBooksResponse;
@@ -40,5 +41,12 @@ public class GuestBookController {
             @PathVariable("guestbookId") Long guestbookId,
             @RequestBody PatchGuestBooksRequest request) {
         return CommonResponse.success(guestBookService.patchGuestBook(guestbookId, request));
+    }
+
+    // 크리에이터 방명록 삭제
+    @DeleteMapping("/user/guestbooks/{guestbookId}")
+    public CommonResponse<DeleteGuestBooksResponse> deleteGuestBook (
+            @PathVariable("guestbookId") Long guestbookId) {
+        return CommonResponse.success(guestBookService.deleteGuestBook(guestbookId));
     }
 }
