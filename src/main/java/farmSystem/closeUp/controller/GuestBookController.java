@@ -1,8 +1,10 @@
 package farmSystem.closeUp.controller;
 
 import farmSystem.closeUp.common.CommonResponse;
+import farmSystem.closeUp.dto.guestbook.request.PatchGuestBooksRequest;
 import farmSystem.closeUp.dto.guestbook.request.PostGuestBooksRequest;
 import farmSystem.closeUp.dto.guestbook.response.GetGuestBooksResponse;
+import farmSystem.closeUp.dto.guestbook.response.PatchGuestBooksResponse;
 import farmSystem.closeUp.dto.guestbook.response.PostGuestBooksResponse;
 import farmSystem.closeUp.service.GuestBookService;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +32,13 @@ public class GuestBookController {
             @PathVariable("creatorId") Long creatorId,
             @RequestBody PostGuestBooksRequest request) {
         return CommonResponse.success(guestBookService.postGuestBook(creatorId, request));
+    }
+
+    // 크리에이터 방명록 수정
+    @PatchMapping("/user/guestbooks/{guestbookId}")
+    public CommonResponse<PatchGuestBooksResponse> patchGuestBook (
+            @PathVariable("guestbookId") Long guestbookId,
+            @RequestBody PatchGuestBooksRequest request) {
+        return CommonResponse.success(guestBookService.patchGuestBook(guestbookId, request));
     }
 }
