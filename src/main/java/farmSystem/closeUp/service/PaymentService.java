@@ -12,7 +12,7 @@ import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.dto.payment.request.PostPaymentVerifyRequest;
 import farmSystem.closeUp.dto.payment.response.PostMerchantIdReponse;
 import farmSystem.closeUp.dto.payment.response.PostPaymentVerifyResponse;
-import farmSystem.closeUp.repository.PointHistoryRepository;
+import farmSystem.closeUp.repository.pointHistory.PointHistoryRepository;
 import farmSystem.closeUp.repository.payment.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor

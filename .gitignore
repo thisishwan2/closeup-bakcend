@@ -40,3 +40,5 @@ out/
 /src/main/resources/application-aws.yml
 
 /src/main/generated/**
+src/main/resources/application-oauth_prod.yml
+src/main/resources/application-prod.yml
