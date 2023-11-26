@@ -73,6 +73,10 @@ sourceSets {
 	}
 }
 
+bootJar {
+	enabled = false
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
