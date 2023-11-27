@@ -88,7 +88,7 @@ public class GuestBookService {
         User user = userService.getCurrentUser();
         GuestBook guestBook = guestBookRepository.findById(guestbookId).orElseThrow(() -> new CustomException(Result.NOTFOUND_GUESTBOOK));
 
-        if(!guestBook.getUser().getUserId().equals(user.getUserId()) || !guestBook.getCreator().getUserId().equals(user.getUserId())) {
+        if(!guestBook.getUser().getUserId().equals(user.getUserId())) {
             throw new CustomException(Result.NOT_AUTHORIZED);
         }
 
