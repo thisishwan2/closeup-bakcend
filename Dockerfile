@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM adoptopenjdk:17-jdk-hotspot AS build
 
 ARG JAR_FILE=/build/libs/closeUp-0.0.1-SNAPSHOT.jar
 
