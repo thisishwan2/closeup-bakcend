@@ -1,4 +1,7 @@
 FROM openjdk:17-alpine
-WORKDIR /closeUp
-COPY closeUp-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java","-jar","/closeUp-0.0.1-SNAPSHOT.jar"]
+
+ARG JAR_FILE=/build/libs/closeUp-0.0.1-SNAPSHOT.jar
+
+COPY ${JAR_FILE} /app.jar
+
+ENTRYPOINT ["java","-jar", "/app.jar"]
