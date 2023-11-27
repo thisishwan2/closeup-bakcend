@@ -1,8 +1,11 @@
 on:
   push:
     branches: [newDev, feature/ci-cd]
+env: # 새로 추가한 부분
+  S3_BUCKET_NAME: close-up-cicd-bucket
+  PROJECT_NAME: closeUp
 
-name: Spring Project CI on ECR
+name: Spring Project CI/CD
 
 jobs:
   deploy:
@@ -19,6 +22,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Make .yml
       - run: mkdir -p ./src/main/resources
       - run: touch ./src/main/resources/application.yml
       - run: echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
@@ -41,6 +45,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         shell: bash
@@ -56,17 +61,5 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build, tag, and push the image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t close-up-backend-ecr ${{ github.sha }} .
-          docker tag close-up-backend-ecr:latest 669260550663.dkr.ecr.ap-northeast-2.amazonaws.com/close-up-backend-ecr:${{ github.sha }}
-          docker push 669260550663.dkr.ecr.ap-northeast-2.amazonaws.com/close-up-backend-ecr:${{ github.sha }}
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
