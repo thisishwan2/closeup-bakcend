@@ -1,7 +1,8 @@
 on:
   push:
     branches: [newDev, feature/ci-cd]
-env:
+
+env: # 새로 추가한 부분
   S3_BUCKET_NAME: close-up-cicd-bucket
   PROJECT_NAME: closeUp
 
@@ -23,6 +24,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Make .yml
+
         run: |
           mkdir -p ./src/main/resources
           touch ./src/main/resources/application.yml
@@ -44,6 +46,7 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
         restore-keys: |
           ${{ runner.os }}-gradle-
 
@@ -63,4 +66,5 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Upload to S3
+
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://${{ env.S3_BUCKET_NAME }}/${{ env.PROJECT_NAME }}/$GITHUB_SHA.zip
