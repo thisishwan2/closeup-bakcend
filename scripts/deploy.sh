@@ -13,5 +13,5 @@ else
 fi
 
 cd /home/ec2-user/app
-sudo docker build -t closeUp .
-sudo docker run -d -p 8080:8080 closeUp
+sudo docker build -t closeup .  # 이미지 이름을 소문자로 변경
+sudo docker run -d -p 8080:8080 closeup  # 이미지 이름을 소문자로 변경
