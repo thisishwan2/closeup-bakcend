@@ -13,5 +13,7 @@ else
 fi
 
 cd /home/ec2-user/app
+echo "> app 디렉토리 진입" >> /home/ec2-user/deploy.log
 sudo docker build -t closeup .  # 이미지 이름을 소문자로 변경
+echo "> docker build" >> /home/ec2-user/deploy.log
 sudo docker run -d -p 8080:8080 closeup  # 이미지 이름을 소문자로 변경
