@@ -48,7 +48,8 @@ public enum Result {
     NOT_EQUAL_AMOUNT(400, "결제 금액이 일치하지 않습니다."),
 
     // 방명록
-    NOTFOUND_GUESTBOOK(404, "해당 방명록이 존재하지 않습니다.");
+    NOTFOUND_GUESTBOOK(404, "해당 방명록이 존재하지 않습니다."),
+    DUPLICATED_HEART(404, "이미 좋아요(반응)가 적용되었습니다.");
 
     private final String message;
     private final int status;
