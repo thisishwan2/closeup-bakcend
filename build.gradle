@@ -62,6 +62,8 @@ dependencies {
 	// aws
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+	// aws sdk javax
+	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 }
 
 // QueryDSL
