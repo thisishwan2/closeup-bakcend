@@ -60,7 +60,8 @@ public class SecurityConfig {
                         .requestMatchers("/health","/token/reissue", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
                         .requestMatchers("/user/sign-up/**").hasAnyRole(String.valueOf(UserRole.GUEST), String.valueOf(UserRole.SIGNUP_USER), String.valueOf(UserRole.FOLLOWED_USER), String.valueOf(UserRole.INTERESTED_USER))
                         .requestMatchers("/user/**").hasRole(String.valueOf(UserRole.USER))
-                        .requestMatchers("/creator/**").hasRole("CREATOR")
+                        .requestMatchers("/creator/sign-up/**").hasAnyRole(String.valueOf(UserRole.GUEST), String.valueOf(UserRole.SIGNUP_CREATOR))
+                        .requestMatchers("/creator/**").hasRole(String.valueOf(UserRole.CREATOR))
                     .anyRequest().authenticated()
                 )
 

@@ -6,14 +6,18 @@ import farmSystem.closeUp.config.jwt.JwtService;
 import farmSystem.closeUp.config.redis.RedisUtils;
 import farmSystem.closeUp.config.security.SecurityUtils;
 import farmSystem.closeUp.domain.*;
+import farmSystem.closeUp.dto.creator.request.PostCreatorSettingRequest;
+import farmSystem.closeUp.dto.user.request.PostCreatorInfoRequest;
 import farmSystem.closeUp.dto.user.request.UserFollowRequest;
 import farmSystem.closeUp.dto.user.request.UserInfoRequest;
 import farmSystem.closeUp.dto.user.request.UserInterestRequest;
 import farmSystem.closeUp.dto.user.response.GetSearchCreatorResponse;
 import farmSystem.closeUp.dto.user.response.PostSignUpResponse;
 import farmSystem.closeUp.dto.user.response.PostTokenReissueResponse;
+import farmSystem.closeUp.repository.InterestRepository;
 import farmSystem.closeUp.repository.UserInterestRepository;
 import farmSystem.closeUp.repository.follow.FollowRepository;
+import farmSystem.closeUp.repository.platform.PlatformRepository;
 import farmSystem.closeUp.repository.user.UserRepository;
 import farmSystem.closeUp.repository.user.UserRepositoryImpl;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +28,14 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.naming.AuthenticationException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -41,6 +48,9 @@ public class UserService {
     private final UserInterestRepository userInterestRepository;
     private final RedisUtils redisUtils;
     private final JwtService jwtService;
+    private final InterestRepository interestRepository;
+    private final PlatformRepository platformRepository;
+    private final S3UploadService s3UploadService;
 
     @Transactional
     public List<GetSearchCreatorResponse> searchCreatorByKeyword(String keyword){
@@ -166,6 +176,7 @@ public class UserService {
         return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
     }
 
+    @Transactional
     public PostSignUpResponse followBulk(UserFollowRequest userFollowRequest){
         Long userId = null;
         try {
@@ -190,6 +201,7 @@ public class UserService {
         return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
     }
 
+    @Transactional
     public PostSignUpResponse interestBulk(UserInterestRequest userInterestRequest){
         Long userId = null;
         try {
@@ -201,7 +213,7 @@ public class UserService {
         // 만약 유저 존재 안할 경우 에러
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
         for (Long interestId : userInterestRequest.getGenreId()) {
-            Interest interest = Interest.builder().interestId(interestId).build();
+            Interest interest = interestRepository.findById(interestId).orElseThrow(() -> new CustomException(Result.NOTFOUND_INTEREST));
             UserInterest userInterest = UserInterest.builder()
                     .user(user)
                     .interest(interest)
@@ -210,9 +222,86 @@ public class UserService {
         }
 
         user.update(userId, UserRole.USER);
-        userRepository.save(user);
+//        userRepository.save(user);
 
         return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
     }
 
+    @Transactional
+    // 크리에이터 회원가입(정보 입력) , multipart 없으면? 어캐댐?
+    public PostSignUpResponse signUpCreator(PostCreatorInfoRequest postCreatorInfoRequest, MultipartFile multipartFile) {
+        Long userId = null;
+        try {
+            userId = getCurrentUserId();
+        } catch (AuthenticationException e) {
+            throw new CustomException(Result.INVALID_ACCESS);
+        }
+
+        // 만약 유저 존재 안할 경우 에러
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+
+        // 닉네임 중복 체크
+        if(userRepository.existsByNickName(postCreatorInfoRequest.getNickname())){
+            new CustomException(Result.USERNAME_DUPLICATION);
+        }
+
+        String fileName = "creator_profile/"+ UUID.randomUUID()+ multipartFile.getOriginalFilename();
+
+        try {
+            s3UploadService.saveFile(multipartFile, fileName);
+        } catch (IOException e) {
+            new CustomException(Result.FILE_UPLOAD_FAIL);
+        }
+
+        user.setProfileImageUrl(fileName);
+
+        // 회원가입 레벨 통과
+        user.update(
+                userId,
+                postCreatorInfoRequest.getNickname(),
+                postCreatorInfoRequest.getAddress(),
+                postCreatorInfoRequest.getPhoneNumber(),
+                postCreatorInfoRequest.getGender(),
+                postCreatorInfoRequest.getBirthday(),
+                postCreatorInfoRequest.getProfileComment(),
+                UserRole.SIGNUP_CREATOR
+        );
+        log.info("sign up");
+
+        return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
+    }
+
+    @Transactional
+    // 플랫폼 설정 및 관심사 설정
+    public PostSignUpResponse creatorSetting(PostCreatorSettingRequest postCreatorSettingRequest, MultipartFile multipartFile) {
+        User user;
+        user = getCurrentUser();
+        Platform platform = platformRepository.findById(postCreatorSettingRequest.getPlatformId()).orElseThrow(() -> new CustomException(Result.NOTFOUND_PLATFORM));
+        user.setPlatform(platform); // 크리에이터 플랫폼 설정
+
+        // 크리에이터 장르(관심사) 설정
+        for (Long interestId :postCreatorSettingRequest.getInterestIds()) {
+            Interest interest = interestRepository.findById(interestId).orElseThrow(() -> new CustomException(Result.NOTFOUND_INTEREST));
+            UserInterest userInterest = UserInterest.builder()
+                    .user(user)
+                    .interest(interest)
+                    .build();
+            userInterestRepository.save(userInterest);
+        }
+
+        // 크리에이터 본인인증
+        String fileName = "creator_verification/"+ UUID.randomUUID()+ multipartFile.getOriginalFilename();
+
+
+        try {
+            s3UploadService.saveFile(multipartFile, fileName);
+        } catch (IOException e) {
+            new CustomException(Result.FILE_UPLOAD_FAIL);
+        }
+
+        user.setVerificationImageUrl(fileName);
+        user.authorizeUser(UserRole.CREATOR);
+
+        return PostSignUpResponse.of(user.getUserId(), user.getUserRole());
+    }
 }
