@@ -89,11 +89,30 @@ public class User extends BaseEntity{
         this.userRole = userRole;
     }
 
+    public void update(String nickname, String address, String phoneNumber, String profileImageUrl, String gender, String birthDay, String profileComment,  UserRole userRole) {
+        this.nickName = nickname;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.profileImageUrl = profileImageUrl;
+        this.gender = gender;
+        this.birthDay = birthDay;
+        this.userRole = userRole;
+        this.profileComment = profileComment;
+    }
+
     public void setPlatform(Platform platform) {
         this.platform = platform;
     }
 
     public void minusPoint(Long point) {
         this.point -= point;
+    }
+
+    public void setProfileImageUrl(String fileName) {
+        this.profileImageUrl = fileName;
+    }
+
+    public void setVerificationImageUrl(String fileName) {
+        this.verificationImageUrl = fileName;
     }
 }
