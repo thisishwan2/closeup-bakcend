@@ -47,6 +47,7 @@ public class HeartService {
         heartRepository.save(heart);
 
         heart.setGuestBook(guestBook);
+        guestBook.setHeart(heart);
 
         return PostHeartResponse.builder().heartId(heart.getHeardId()).build();
 
