@@ -24,6 +24,10 @@ public class GuestBook extends BaseEntity{
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user; //일반 유저
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "heart_id", referencedColumnName = "heart_id")
+    private Heart heart;
+
     @Builder
     public GuestBook(Long guestBookId, String content){
         this.guestBookId = guestBookId;
@@ -37,5 +41,7 @@ public class GuestBook extends BaseEntity{
     public void setCreator(User creator) {
         this.creator = creator;
     }
+
+    public void setHeart(Heart heart) { this.heart = heart; }
 
 }
