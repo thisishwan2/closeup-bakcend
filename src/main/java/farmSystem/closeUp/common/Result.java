@@ -46,12 +46,18 @@ public enum Result {
     // 포인트
     LESS_THAN_MINIMUM_POINT(400, "5000원 이상부터 충전이 가능합니다."),
     NOT_EQUAL_AMOUNT(400, "결제 금액이 일치하지 않습니다."),
+    NOT_FOUND_POINTHISTORY(404, "포인트 체결 내역이 존재하지 않습니다.");
+    NOT_FOUND_POINTHISTORY(404, "포인트 체결 내역이 존재하지 않습니다."),
+
+    // 플랫폼
+    NOTFOUND_PLATFORM(404, "해당 플랫폼이 존재하지 않습니다."),
+
+    // 관심사
+    NOTFOUND_INTEREST(404, "해당 관심사가 존재하지 않습니다."), FILE_UPLOAD_FAIL(404, "파일 업로드에 실패했습니다."),;
 
     // 방명록
     NOTFOUND_GUESTBOOK(404, "해당 방명록이 존재하지 않습니다."),
     DUPLICATED_HEART(404, "이미 좋아요(반응)가 적용되었습니다.");
-
-    NOT_FOUND_POINTHISTORY(404, "포인트 체결 내역이 존재하지 않습니다.");
 
 
     private final String message;
