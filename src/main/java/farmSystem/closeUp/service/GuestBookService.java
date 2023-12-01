@@ -82,7 +82,7 @@ public class GuestBookService {
                 .build();
     }
 
-    // 방명록 삭제
+    // 방명록 삭제 - 유저
     @Transactional
     public DeleteGuestBooksResponse deleteGuestBook(Long guestbookId) {
         User user = userService.getCurrentUser();
@@ -90,6 +90,23 @@ public class GuestBookService {
 
         if(!guestBook.getUser().getUserId().equals(user.getUserId())) {
             throw new CustomException(Result.NOT_AUTHORIZED);
+        }
+
+        guestBookRepository.delete(guestBook);
+
+        return DeleteGuestBooksResponse.builder()
+                .guestBookId(guestBook.getGuestBookId())
+                .build();
+    }
+
+    // 방명록 삭제 - 크리에이터
+    @Transactional
+    public DeleteGuestBooksResponse deleteGuestBookCreator(Long guestbookId) {
+        User user = userService.getCurrentUser();
+        GuestBook guestBook = guestBookRepository.findById(guestbookId).orElseThrow(() -> new CustomException(Result.NOTFOUND_GUESTBOOK));
+
+        if(!guestBook.getCreator().getUserId().equals(user.getUserId())) {
+            throw new CustomException(Result.NOT_AUTHORIZED_CREATOR);
         }
 
         guestBookRepository.delete(guestBook);
