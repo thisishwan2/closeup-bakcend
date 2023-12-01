@@ -54,6 +54,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 String redirectUrl = createToken(response, oAuth2User, targetUrl);
                 log.info("크리에이터 팔로우 페이지로 이동");
                 getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+            } else if (oAuth2User.getUserRole() == UserRole.SIGNUP_CREATOR) { // 크리에이터가 추가정보는 입력했는데, 플랫폼 정보 및 관심사 설정안한경우
+                targetUrl = "http://localhost:8080/creator/interest";
+                String redirectUrl = createToken(response, oAuth2User, targetUrl);
+                log.info("크리에이터 플랫폼 및 이미지 검증 및 관심사 설정 페이지로 이동");
+                getRedirectStrategy().sendRedirect(request, response, redirectUrl);
             }
         } catch (Exception e) {
             throw e;

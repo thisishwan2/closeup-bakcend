@@ -2,6 +2,8 @@ package farmSystem.closeUp.controller;
 
 
 import farmSystem.closeUp.common.CommonResponse;
+import farmSystem.closeUp.dto.creator.request.PostCreatorSettingRequest;
+import farmSystem.closeUp.dto.user.request.PostCreatorInfoRequest;
 import farmSystem.closeUp.dto.user.request.UserFollowRequest;
 import farmSystem.closeUp.dto.user.request.UserInfoRequest;
 import farmSystem.closeUp.dto.user.request.UserInterestRequest;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -58,5 +61,17 @@ public class UserController {
     @PostMapping(value = "/user/sign-up/interest")
     public CommonResponse<PostSignUpResponse> signUpInterestBulk(@RequestBody @Valid final UserInterestRequest userInterestRequest){
         return CommonResponse.success(userService.interestBulk(userInterestRequest));
+    }
+
+    // 크리에이터 회원가입
+    @PostMapping(value = "/creator/sign-up")
+    public CommonResponse<PostSignUpResponse> signUpCreator(@RequestPart @Valid final PostCreatorInfoRequest postCreatorInfoRequest, @RequestPart MultipartFile multipartFile){
+        return CommonResponse.success(userService.signUpCreator(postCreatorInfoRequest, multipartFile));
+    }
+
+    // 크리에이터 플랫폼, 활동 장르 설정 및 본인인증
+    @PostMapping(value = "/creator/sign-up/setting")
+    public CommonResponse<PostSignUpResponse> creatorSetting(@RequestPart @Valid final PostCreatorSettingRequest postCreatorSettingRequest, @RequestPart MultipartFile multipartFile){
+        return CommonResponse.success(userService.creatorSetting(postCreatorSettingRequest, multipartFile));
     }
 }
