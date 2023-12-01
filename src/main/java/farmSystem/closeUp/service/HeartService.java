@@ -5,6 +5,7 @@ import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.domain.GuestBook;
 import farmSystem.closeUp.domain.Heart;
 import farmSystem.closeUp.domain.User;
+import farmSystem.closeUp.dto.heart.response.DeleteHeartResponse;
 import farmSystem.closeUp.dto.heart.response.PostHeartResponse;
 import farmSystem.closeUp.repository.guestbook.GuestBookRepository;
 import farmSystem.closeUp.repository.heart.HeartRepository;
@@ -22,6 +23,7 @@ public class HeartService {
     private final GuestBookRepository guestBookRepository;
     private final HeartRepository heartRepository;
 
+    // 크리에이터 - 방명록 반응 남기기 (좋아요)
     @Transactional
     public PostHeartResponse postHeart(Long guestbookId) {
         User user = userService.getCurrentUser();
@@ -35,7 +37,7 @@ public class HeartService {
 
         // 크리에이터 자신의 방명록이 아닌 경우
         if (!guestBook.getCreator().getUserId().equals(user.getUserId())) {
-            throw new CustomException(Result.NOT_AUTHORIZED);
+            throw new CustomException(Result.NOT_AUTHORIZED_CREATOR);
         }
 
         Heart heart = Heart.builder()
@@ -48,5 +50,22 @@ public class HeartService {
 
         return PostHeartResponse.builder().heartId(heart.getHeardId()).build();
 
+    }
+
+    // 크리에이터 - 방명록 반응 삭제
+    @Transactional
+    public DeleteHeartResponse deleteHeart(Long heartId) {
+        User user = userService.getCurrentUser();
+        Heart heart = heartRepository.findById(heartId).orElseThrow(()-> new CustomException(Result.NOTFOUND_HEART));
+
+        if(!heart.getGuestBook().getCreator().getUserId().equals(user.getUserId())) {
+            throw new CustomException(Result.NOT_AUTHORIZED_CREATOR);
+        }
+
+        heartRepository.delete(heart);
+
+        return DeleteHeartResponse.builder()
+                .heartId(heart.getHeardId())
+                .build();
     }
 }
