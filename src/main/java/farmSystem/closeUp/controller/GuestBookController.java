@@ -43,10 +43,17 @@ public class GuestBookController {
         return CommonResponse.success(guestBookService.patchGuestBook(guestbookId, request));
     }
 
-    // 크리에이터 방명록 삭제
+    // 크리에이터 방명록 삭제 - 유저
     @DeleteMapping("/user/guestbooks/{guestbookId}")
     public CommonResponse<DeleteGuestBooksResponse> deleteGuestBook (
             @PathVariable("guestbookId") Long guestbookId) {
         return CommonResponse.success(guestBookService.deleteGuestBook(guestbookId));
+    }
+
+    // 크리에이터 방명록 삭제 - 크리에이터
+    @DeleteMapping("/creator/guestbooks/{guestbookId}")
+    public CommonResponse<DeleteGuestBooksResponse> deleteGuestBookCreator (
+            @PathVariable("guestbookId") Long guestbookId) {
+        return CommonResponse.success(guestBookService.deleteGuestBookCreator(guestbookId));
     }
 }
