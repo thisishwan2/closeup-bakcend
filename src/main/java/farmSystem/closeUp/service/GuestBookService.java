@@ -32,6 +32,7 @@ public class GuestBookService {
     private final UserService userService;
     private final UserRepository userRepository;
 
+    // 방명록 조회 - 유저
     @Transactional
     public Slice<GetGuestBooksResponse> getGuestBooks(Long creatorId, Pageable pageable) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
@@ -41,7 +42,7 @@ public class GuestBookService {
         return findGuestBooks;
     }
 
-    // 방명록 작성
+    // 방명록 작성 - 유저
     @Transactional
     public PostGuestBooksResponse postGuestBook(Long creatorId, PostGuestBooksRequest request) {
         User user = userService.getCurrentUser();
@@ -62,7 +63,7 @@ public class GuestBookService {
                 .build();
     }
 
-    // 방명록 수정
+    // 방명록 수정 - 유저
     @Transactional
     public PatchGuestBooksResponse patchGuestBook(Long guestbookId, PatchGuestBooksRequest request) {
         User user = userService.getCurrentUser();
@@ -97,6 +98,16 @@ public class GuestBookService {
         return DeleteGuestBooksResponse.builder()
                 .guestBookId(guestBook.getGuestBookId())
                 .build();
+    }
+
+    // 방명록 조회 - 크리에이터
+    @Transactional
+    public Slice<GetGuestBooksResponse> getGuestBooksCreator(Long creatorId, Pageable pageable) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        Slice<GetGuestBooksResponse> findGuestBooks = guestBookRepositoryImpl.findByGuestBooks(creatorId, pageable);
+
+        return findGuestBooks;
     }
 
     // 방명록 삭제 - 크리에이터
