@@ -5,18 +5,15 @@ import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.domain.Raffle;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.domain.WinningInfo;
-import farmSystem.closeUp.dto.raffle.response.*;
+import farmSystem.closeUp.dto.raffle.response.GetRafflesUserResponse;
+import farmSystem.closeUp.dto.raffle.response.GetUserRaffleDetailIntangibleResponse;
+import farmSystem.closeUp.dto.raffle.response.GetUserRaffleDetailResponse;
+import farmSystem.closeUp.dto.raffle.response.GetUserRaffleDetailTangible;
 import farmSystem.closeUp.repository.raffle.RaffleRepository;
 import farmSystem.closeUp.repository.user.UserRepository;
-import farmSystem.closeUp.dto.raffle.response.GetRafflesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
 import java.util.ArrayList;
@@ -90,7 +87,19 @@ public class RaffleService {
     }
 
     public GetUserRaffleDetailResponse getRaffleDetail(Long raffleId) {
+        // 본인 래플인지 확인
+        Long userId = null;
+        try {
+            userId = userService.getCurrentUserId();
+        } catch (AuthenticationException e) {
+            throw new CustomException(Result.UNAUTHORIZED);
+        }
+
         Raffle raffle = raffleRepository.findByRaffleId(raffleId).orElseThrow(() -> new CustomException(Result.NOTFOUND_RAFFLE));
+
+        if (raffle.getUser().getUserId() != userId) {
+            throw new CustomException(Result.UNAUTHORIZED);
+        }
 
         if (raffle.getWinningInfo().equals(WinningInfo.WINNING)) {
             if (raffle.getRaffleProduct().getCategory().getParent().equals(1)) {
