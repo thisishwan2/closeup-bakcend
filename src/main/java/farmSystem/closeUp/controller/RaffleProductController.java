@@ -1,18 +1,20 @@
 package farmSystem.closeUp.controller;
 
 import farmSystem.closeUp.common.CommonResponse;
-import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductApplyResponse;
-import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductResponse;
-import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductsResponse;
-import farmSystem.closeUp.dto.raffleProduct.response.PostRaffleProductResponse;
+import farmSystem.closeUp.dto.raffleProduct.request.PostCreateRaffleProductRequest;
+import farmSystem.closeUp.dto.raffleProduct.response.*;
 import farmSystem.closeUp.service.RaffleProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.naming.AuthenticationException;
+import java.io.IOException;
 
 @RestController
 @Slf4j
@@ -69,5 +71,11 @@ public class RaffleProductController {
     @PostMapping("/user/raffle-products/{raffleProductId}/order")
     public CommonResponse<PostRaffleProductResponse> postRaffleProduct(@PathVariable("raffleProductId") Long raffleProductId){
         return CommonResponse.success(raffleProductService.postRaffleProduct(raffleProductId));
+    }
+
+    // 래플 생성하기
+    @PostMapping(value = "/creator/raffle-products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CommonResponse<PostCreateRaffleProductResponse> postCreateRaffleProduct(@RequestParam(value="thumbnailImage") MultipartFile thumbnailImage, @Valid final PostCreateRaffleProductRequest postCreateRaffleProductRequest) throws IOException {
+        return CommonResponse.success(raffleProductService.postCreateRaffleProduct(thumbnailImage, postCreateRaffleProductRequest));
     }
 }

@@ -2,27 +2,29 @@ package farmSystem.closeUp.service;
 
 import farmSystem.closeUp.common.CustomException;
 import farmSystem.closeUp.common.Result;
+import farmSystem.closeUp.config.s3.S3Uploader;
 import farmSystem.closeUp.domain.*;
-import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductApplyResponse;
-import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductResponse;
-import farmSystem.closeUp.dto.raffleProduct.response.GetRaffleProductsResponse;
-import farmSystem.closeUp.dto.raffleProduct.response.PostRaffleProductResponse;
+import farmSystem.closeUp.dto.raffleProduct.request.PostCreateRaffleProductRequest;
+import farmSystem.closeUp.dto.raffleProduct.response.*;
+import farmSystem.closeUp.repository.category.CategoryRepository;
+import farmSystem.closeUp.repository.follow.FollowRepository;
 import farmSystem.closeUp.repository.pointHistory.PointHistoryRepository;
 import farmSystem.closeUp.repository.raffle.RaffleRepository;
-
-import farmSystem.closeUp.repository.follow.FollowRepository;
 import farmSystem.closeUp.repository.raffleProduct.RaffleProductRepository;
 import farmSystem.closeUp.repository.raffleProduct.RaffleProductRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.naming.AuthenticationException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +34,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class RaffleProductService {
+    @Autowired
+    private S3Uploader s3Uploader;
 
     private final RaffleProductRepository raffleProductRepository;
     private final RaffleProductRepositoryImpl raffleProductRepositoryImpl;
@@ -39,6 +43,9 @@ public class RaffleProductService {
     private final UserService userService;
     private final RaffleRepository raffleRepository;
     private final PointHistoryRepository pointHistoryRepository;
+    private final CategoryRepository categoryRepository;
+
+
 
     // 회원님이 팔로우하는 크리에이터 래플 목록 조회
     @Transactional(readOnly = true)
@@ -57,7 +64,7 @@ public class RaffleProductService {
         // 아무도 팔로우 안한 경우 빈 리스트 반환
         if (followList.isEmpty()) {
             creatorIds = Collections.emptyList();
-        }else {
+        } else {
             creatorIds = followList
                     .stream()
                     .map(follow -> follow.getCreator().getUserId())
@@ -70,29 +77,28 @@ public class RaffleProductService {
         try {
             Slice<GetRaffleProductsResponse> followingRaffleProducts = raffleProductRepositoryImpl.findFollowingRaffleProducts(creatorIds, pageable);
             return followingRaffleProducts;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new CustomException(Result.NOTFOUND_RAFFLE);
         }
     }
 
     // 전체 래플 목록 조회
     @Transactional(readOnly = true)
-    public Slice<GetRaffleProductsResponse> getRaffleProducts(Pageable pageable){
+    public Slice<GetRaffleProductsResponse> getRaffleProducts(Pageable pageable) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
         try {
             Slice<GetRaffleProductsResponse> raffleProducts = raffleProductRepositoryImpl.findRaffleProducts(pageable);
             return raffleProducts;
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new CustomException(Result.NOTFOUND_RAFFLE);
         }
     }
 
     // 래플 상세 조회
     @Transactional(readOnly = true)
-    public GetRaffleProductResponse getRaffleProduct(Long raffleProductId){
+    public GetRaffleProductResponse getRaffleProduct(Long raffleProductId) {
         RaffleProduct raffleProduct = raffleProductRepository.findById(raffleProductId).orElseThrow(() -> new CustomException(Result.NOTFOUND_RAFFLE));
         GetRaffleProductResponse getRaffleProductResponse = GetRaffleProductResponse.
                 of(raffleProduct.getRaffleProductId(), raffleProduct.getTitle(), raffleProduct.getStartDate(), raffleProduct.getEndDate(), raffleProduct.getContent(), raffleProduct.getWinnerCount(), raffleProduct.getRafflePrice(), raffleProduct.getWinningDate(), raffleProduct.getThumbnailImageUrl(), raffleProduct.getCreator().getNickName(), raffleProduct.getCreator().getUserId());
@@ -132,7 +138,7 @@ public class RaffleProductService {
             throw new CustomException(Result.RAFFLE_END);
         }
 
-        if (user.getPoint() - raffleProduct.getRafflePrice()<0){
+        if (user.getPoint() - raffleProduct.getRafflePrice() < 0) {
             throw new CustomException(Result.NOT_ENOUGH_POINT);
         }
 
@@ -167,5 +173,47 @@ public class RaffleProductService {
         Slice<GetRaffleProductsResponse> findRaffles = raffleProductRepositoryImpl.findCreatorRaffleProducts(creatorId, pageable);
 
         return findRaffles;
+    }
+
+    @Transactional
+    public PostCreateRaffleProductResponse postCreateRaffleProduct(MultipartFile thumbnailImage, PostCreateRaffleProductRequest postCreateRaffleProductRequest) throws IOException {
+        // 현재 크리에이터 조회
+        User user = userService.getCurrentUser();
+
+        // 카테고리 조회
+        Category category = categoryRepository.findByCategoryId(postCreateRaffleProductRequest.getCategoryId()).orElseThrow(() -> new CustomException(Result.NOTFOUND_CATEGORY));
+
+        // 당첨자 발표 날짜 구하기 - 래플 종료 일 정오 12시
+        LocalDateTime endDate = postCreateRaffleProductRequest.getEndDate();
+        LocalDateTime winningDate = endDate.plusDays(0).withHour(12).withMinute(0).withSecond(0).withNano(0);
+
+        // 섬네일 이미지 s3에 저장
+        String thumbnailImageUrl = null;
+        if(!thumbnailImage.isEmpty()) {
+            String storedFileName = s3Uploader.upload(thumbnailImage, "raffle_thumbnail");
+            thumbnailImageUrl = storedFileName;
+        }
+
+        // 래플 상품 생성
+        RaffleProduct raffleProduct = RaffleProduct.builder()
+                .title(postCreateRaffleProductRequest.getTitle())
+                .startDate(postCreateRaffleProductRequest.getStartDate())
+                .endDate(postCreateRaffleProductRequest.getEndDate())
+                .winningDate(winningDate)
+                .content(postCreateRaffleProductRequest.getContent())
+                .winnerCount(postCreateRaffleProductRequest.getWinnerCount())
+                .rafflePrice(postCreateRaffleProductRequest.getRafflePrice())
+                .thumbnailImageUrl(thumbnailImageUrl)
+                .creator(user)
+                .category(category)
+                .build();
+
+        // 무형인지 유형인지 판단
+//        if (category.getParent().getCategoryId() == Long.valueOf(2)) {
+//            raffleProduct.
+//        }
+
+        raffleProductRepository.save(raffleProduct);
+        return PostCreateRaffleProductResponse.of(winningDate);
     }
 }
