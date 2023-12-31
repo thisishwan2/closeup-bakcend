@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class RaffleService {
             GetRafflesUserResponse getRafflesResponse = GetRafflesUserResponse.builder()
                     .raffleId(raffle.getRaffleId())
                     .winningInfo(raffle.getWinningInfo())
-                    .raffleCreatedAt(raffle.getRaffleProduct().getCreatedAt())
+                    .raffleCreatedAt(LocalDate.from(raffle.getRaffleProduct().getCreatedAt()))
                     .raffleEndAt(raffle.getRaffleProduct().getEndDate())
                     .raffleThumbnailUrl(raffle.getRaffleProduct().getThumbnailImageUrl())
                     .creatorId(raffle.getRaffleProduct().getCreator().getUserId())
@@ -77,7 +78,7 @@ public class RaffleService {
             GetRafflesUserResponse getRafflesResponse = GetRafflesUserResponse.builder()
                     .raffleId(raffle.getRaffleId())
                     .winningInfo(raffle.getWinningInfo())
-                    .raffleCreatedAt(raffle.getRaffleProduct().getCreatedAt())
+                    .raffleCreatedAt(LocalDate.from(raffle.getRaffleProduct().getCreatedAt()))
                     .raffleEndAt(raffle.getRaffleProduct().getEndDate())
                     .raffleThumbnailUrl(raffle.getRaffleProduct().getThumbnailImageUrl())
                     .creatorId(raffle.getRaffleProduct().getCreator().getUserId())
@@ -97,8 +98,8 @@ public class RaffleService {
                 GetUserRaffleDetailTangible result = GetUserRaffleDetailTangible.builder()
                         .winningInfo(raffle.getWinningInfo())
                         .raffleCreateDate(raffle.getCreatedAt())
-                        .raffleProductStartDate(raffle.getRaffleProduct().getStartDate())
-                        .raffleProductEndDate(raffle.getRaffleProduct().getEndDate())
+                        .raffleProductStartDate(raffle.getRaffleProduct().getStartDate().atStartOfDay())
+                        .raffleProductEndDate(raffle.getRaffleProduct().getEndDate().atStartOfDay())
                         .raffleProductTitle(raffle.getRaffleProduct().getTitle())
                         .raffleProductThumbnailUrl(raffle.getRaffleProduct().getThumbnailImageUrl())
                         .raffleProductContent(raffle.getRaffleProduct().getContent())
@@ -109,8 +110,8 @@ public class RaffleService {
                 GetUserRaffleDetailIntangibleResponse result = GetUserRaffleDetailIntangibleResponse.builder()
                         .winningInfo(raffle.getWinningInfo())
                         .raffleCreateDate(raffle.getCreatedAt())
-                        .raffleProductStartDate(raffle.getRaffleProduct().getStartDate())
-                        .raffleProductEndDate(raffle.getRaffleProduct().getEndDate())
+                        .raffleProductStartDate(raffle.getRaffleProduct().getStartDate().atStartOfDay())
+                        .raffleProductEndDate(raffle.getRaffleProduct().getEndDate().atStartOfDay())
                         .raffleProductTitle(raffle.getRaffleProduct().getTitle())
                         .raffleProductThumbnailUrl(raffle.getRaffleProduct().getThumbnailImageUrl())
                         .raffleProductContent(raffle.getRaffleProduct().getContent())
@@ -124,8 +125,8 @@ public class RaffleService {
         GetUserRaffleDetailResponse result = GetUserRaffleDetailResponse.builder()
                 .winningInfo(raffle.getWinningInfo())
                 .raffleCreateDate(raffle.getCreatedAt())
-                .raffleProductStartDate(raffle.getRaffleProduct().getStartDate())
-                .raffleProductEndDate(raffle.getRaffleProduct().getEndDate())
+                .raffleProductStartDate(raffle.getRaffleProduct().getStartDate().atStartOfDay())
+                .raffleProductEndDate(raffle.getRaffleProduct().getEndDate().atStartOfDay())
                 .raffleProductTitle(raffle.getRaffleProduct().getTitle())
                 .raffleProductThumbnailUrl(raffle.getRaffleProduct().getThumbnailImageUrl())
                 .raffleProductContent(raffle.getRaffleProduct().getContent())

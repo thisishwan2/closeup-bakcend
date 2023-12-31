@@ -4,6 +4,7 @@ import farmSystem.closeUp.domain.WinningInfo;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,8 +13,8 @@ public class GetRafflesUserResponse {
     private Long raffleId;
     private WinningInfo winningInfo;
     private String raffleTitle;
-    private LocalDateTime raffleCreatedAt;
-    private LocalDateTime raffleEndAt;
+    private LocalDate raffleCreatedAt;
+    private LocalDate raffleEndAt;
     private String raffleThumbnailUrl;
     private Long creatorId;
     private String creatorName;

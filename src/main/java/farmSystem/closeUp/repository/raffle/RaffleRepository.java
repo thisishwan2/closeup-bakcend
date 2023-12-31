@@ -1,6 +1,7 @@
 package farmSystem.closeUp.repository.raffle;
 
 import farmSystem.closeUp.domain.Raffle;
+import farmSystem.closeUp.domain.RaffleProduct;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.domain.WinningInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,6 @@ public interface RaffleRepository extends JpaRepository<Raffle, Long> {
     List<Raffle> findAllByUser(User user);
 
     Optional<Raffle> findByRaffleId(Long raffleId);
+
+    List<Raffle> findByRaffleProduct(RaffleProduct raffleProduct);
 }
