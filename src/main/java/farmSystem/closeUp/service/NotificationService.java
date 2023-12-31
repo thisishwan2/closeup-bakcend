@@ -21,9 +21,19 @@ public class NotificationService {
     private final NotificationRepositoryImpl notificationRepositoryImpl;
 
 
-    // 크리에이터 공지사항 조회(무한 스크롤)
+    // 크리에이터 공지사항 조회(무한 스크롤) - 유저
     @Transactional
     public Slice<GetNotificationsResponse> getNotifications(Long creatorId, Pageable pageable){
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        Slice<GetNotificationsResponse> findNotifications = notificationRepositoryImpl.findByNotifications(creatorId, pageable);
+
+        return findNotifications;
+    }
+
+    // 크리에이터 공지사항 조회(무한 스크롤) - 크리에이터
+    @Transactional
+    public Slice<GetNotificationsResponse> getNotificationsCreator(Long creatorId, Pageable pageable){
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         Slice<GetNotificationsResponse> findNotifications = notificationRepositoryImpl.findByNotifications(creatorId, pageable);
