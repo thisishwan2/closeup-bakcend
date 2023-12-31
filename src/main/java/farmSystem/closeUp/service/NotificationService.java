@@ -5,6 +5,7 @@ import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.domain.Notification;
 import farmSystem.closeUp.domain.User;
 import farmSystem.closeUp.dto.notification.request.PostNotificationRequest;
+import farmSystem.closeUp.dto.notification.response.DeleteNotificationResponse;
 import farmSystem.closeUp.dto.notification.response.GetNotificationsResponse;
 import farmSystem.closeUp.dto.notification.response.PostNotificationResponse;
 import farmSystem.closeUp.repository.notification.NotificationRepository;
@@ -68,6 +69,24 @@ public class NotificationService {
                 .notificationId(notification.getNotificationId())
                 .title(notification.getNotificationTitle())
                 .content(notification.getNotificationContent())
+                .build();
+
+    }
+
+    // 크리에이터 공지사항 삭제 - 크리에이터
+    @Transactional
+    public DeleteNotificationResponse deleteNotification(Long notificationId) {
+        User user = userService.getCurrentUser();
+        Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new CustomException(Result.NOTFOUND_POST));
+
+        if(!notification.getCreator().getUserId().equals(user.getUserId())) {
+            throw new CustomException(Result.NOT_AUTHORIZED);
+        }
+
+        notificationRepository.delete(notification);
+
+        return DeleteNotificationResponse.builder()
+                .notificationId(notification.getNotificationId())
                 .build();
 
     }
