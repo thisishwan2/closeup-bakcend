@@ -57,12 +57,18 @@ public class NotificationService {
     public PostNotificationResponse postNotification(Long creatorId, PostNotificationRequest request) {
         User user = userService.getCurrentUser();
 
+
         Notification notification = Notification.builder()
                 .notificationTitle(request.getTitle())
                 .notificationContent(request.getContent())
                 .build();
 
         User creator = userRepository.findById(creatorId).orElseThrow(() -> new CustomException(Result.NOTFOUND_USER));
+
+        if(!creatorId.equals(user.getUserId())) {
+            throw new CustomException(Result.UNAUTHORIZED);
+        }
+
         notification.setCreator(creator);
 
         notificationRepository.save(notification);
