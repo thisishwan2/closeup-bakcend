@@ -4,9 +4,11 @@ import farmSystem.closeUp.common.CustomException;
 import farmSystem.closeUp.common.Result;
 import farmSystem.closeUp.domain.Notification;
 import farmSystem.closeUp.domain.User;
+import farmSystem.closeUp.dto.notification.request.PatchNotificationRequest;
 import farmSystem.closeUp.dto.notification.request.PostNotificationRequest;
 import farmSystem.closeUp.dto.notification.response.DeleteNotificationResponse;
 import farmSystem.closeUp.dto.notification.response.GetNotificationsResponse;
+import farmSystem.closeUp.dto.notification.response.PatchNotificationResponse;
 import farmSystem.closeUp.dto.notification.response.PostNotificationResponse;
 import farmSystem.closeUp.repository.notification.NotificationRepository;
 import farmSystem.closeUp.repository.notification.NotificationRepositoryImpl;
@@ -87,6 +89,29 @@ public class NotificationService {
 
         return DeleteNotificationResponse.builder()
                 .notificationId(notification.getNotificationId())
+                .build();
+
+    }
+
+    // 크리에이터 공지사항 수정 - 크리에이터
+    @Transactional
+    public PatchNotificationResponse patchNotification(Long notificationId, PatchNotificationRequest request) {
+        User user = userService.getCurrentUser();
+        Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new CustomException(Result.NOTFOUND_POST));
+
+        if(!notification.getCreator().getUserId().equals(user.getUserId())) {
+            throw new CustomException(Result.NOT_AUTHORIZED);
+        }
+
+        notification.setNotificationTitle(request.getTitle());
+        notification.setNotificationContent(request.getContent());
+
+        notificationRepository.save(notification);
+
+        return PatchNotificationResponse.builder()
+                .notificationId(notification.getNotificationId())
+                .title(notification.getNotificationTitle())
+                .content(notification.getNotificationContent())
                 .build();
 
     }
