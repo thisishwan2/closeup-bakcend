@@ -32,4 +32,6 @@ public class Notification extends BaseEntity{
         this.notificationContent = notificationContent;
         this.notificationThumbnailUrl = notificationThumbnailUrl;
     }
+
+    public void setCreator(User creator) { this.creator = creator; }
 }
