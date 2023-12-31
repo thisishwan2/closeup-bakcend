@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -107,7 +108,7 @@ public class RaffleProductService {
         RaffleProduct raffleProduct = raffleProductRepository.findById(raffleProductId).orElseThrow(() -> new CustomException(Result.NOTFOUND_RAFFLE));
 
         // 만약 해당 래플 상품의 응모 마감기한이 지났다면 응모 페이지 리다이렉트 불가
-        if (raffleProduct.getEndDate().isBefore(LocalDateTime.now())) {
+        if (raffleProduct.getEndDate().isBefore(LocalDate.now())) {
             throw new CustomException(Result.RAFFLE_END);
         }
 
@@ -128,7 +129,7 @@ public class RaffleProductService {
         RaffleProduct raffleProduct = raffleProductRepository.findById(raffleProductId).orElseThrow(() -> new CustomException(Result.NOTFOUND_RAFFLE));
 
         // 만약 해당 래플 상품의 응모 마감기한이 지났다면 신청 불가능
-        if (raffleProduct.getEndDate().isBefore(LocalDateTime.now())) {
+        if (raffleProduct.getEndDate().isBefore(LocalDate.now())) {
             throw new CustomException(Result.RAFFLE_END);
         }
 
