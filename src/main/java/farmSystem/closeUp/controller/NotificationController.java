@@ -1,9 +1,11 @@
 package farmSystem.closeUp.controller;
 
 import farmSystem.closeUp.common.CommonResponse;
+import farmSystem.closeUp.dto.notification.request.PatchNotificationRequest;
 import farmSystem.closeUp.dto.notification.request.PostNotificationRequest;
 import farmSystem.closeUp.dto.notification.response.DeleteNotificationResponse;
 import farmSystem.closeUp.dto.notification.response.GetNotificationsResponse;
+import farmSystem.closeUp.dto.notification.response.PatchNotificationResponse;
 import farmSystem.closeUp.dto.notification.response.PostNotificationResponse;
 import farmSystem.closeUp.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,14 @@ public class NotificationController {
     public CommonResponse<DeleteNotificationResponse> deleteNotification (
             @PathVariable("notificationId") Long notificationId) {
         return CommonResponse.success(notificationService.deleteNotification(notificationId));
+    }
+
+    // 크리에이터 공지사항 수정 - 크리에이터
+    @PatchMapping("/creator/notifications/{notificationId}")
+    public CommonResponse<PatchNotificationResponse> patchNotification (
+            @PathVariable("notificationId") Long notificationId,
+            @RequestBody PatchNotificationRequest request) {
+        return CommonResponse.success(notificationService.patchNotification(notificationId, request));
     }
 
 }
