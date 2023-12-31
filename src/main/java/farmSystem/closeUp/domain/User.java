@@ -78,12 +78,27 @@ public class User extends BaseEntity{
         this.userRole = userRole;
     }
 
+    // 유저 회원가입
     public void update(Long id, String nickname, String address, String phoneNumber, String profileImageUrl, String gender, String birthDay, UserRole userRole) {
         this.userId = id;
         this.nickName = nickname;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.profileImageUrl = profileImageUrl;
+        this.gender = gender;
+        this.birthDay = birthDay;
+        this.userRole = userRole;
+    }
+
+
+    // 크리에이터 회원가입
+    public void update(Long id, String nickname, String address, String phoneNumber, String profileImageUrl, String profileComment, String gender, String birthDay, UserRole userRole) {
+        this.userId = id;
+        this.nickName = nickname;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.profileImageUrl = profileImageUrl;
+        this.profileComment = profileComment;
         this.gender = gender;
         this.birthDay = birthDay;
         this.userRole = userRole;
