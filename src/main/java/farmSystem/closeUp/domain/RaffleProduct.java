@@ -46,6 +46,21 @@ public class RaffleProduct extends BaseEntity{
     private Category category;
 
     @Builder
+    public RaffleProduct(Long raffleProductId, String title, LocalDate startDate, LocalDate endDate, String content, Long winnerCount, Long rafflePrice, String address, LocalDateTime winningDate, String thumbnailImageUrl, User creator, Category category) {
+        this.raffleProductId = raffleProductId;
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.content = content;
+        this.winnerCount = winnerCount;
+        this.rafflePrice = rafflePrice;
+        this.address = address;
+        this.winningDate = winningDate;
+        this.thumbnailImageUrl = thumbnailImageUrl;
+        this.creator = creator;
+        this.category = category;
+    }
+  
     public RaffleProduct(Long raffleProductId, String title, LocalDate startDate, LocalDate endDate, String content, Long winnerCount, Long rafflePrice, String address, LocalDateTime winningDate, String thumbnailImageUrl) {
         this.raffleProductId = raffleProductId;
         this.title = title;
@@ -57,5 +72,7 @@ public class RaffleProduct extends BaseEntity{
         this.address = address;
         this.winningDate = winningDate;
         this.thumbnailImageUrl = thumbnailImageUrl;
+        this.creator = creator;
+        this.category = category;
     }
 }
