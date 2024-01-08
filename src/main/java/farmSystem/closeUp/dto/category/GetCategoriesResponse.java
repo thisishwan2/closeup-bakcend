@@ -1,4 +1,4 @@
-package farmSystem.closeUp.dto;
+package farmSystem.closeUp.dto.category;
 
 import lombok.Builder;
 import lombok.Getter;

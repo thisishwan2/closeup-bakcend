@@ -1,7 +1,7 @@
 package farmSystem.closeUp.service;
 
 import farmSystem.closeUp.domain.Category;
-import farmSystem.closeUp.dto.GetCategoriesResponse;
+import farmSystem.closeUp.dto.category.GetCategoriesResponse;
 import farmSystem.closeUp.repository.category.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

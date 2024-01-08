@@ -1,7 +1,7 @@
 package farmSystem.closeUp.controller;
 
 import farmSystem.closeUp.common.CommonResponse;
-import farmSystem.closeUp.dto.GetCategoriesResponse;
+import farmSystem.closeUp.dto.category.GetCategoriesResponse;
 import farmSystem.closeUp.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
