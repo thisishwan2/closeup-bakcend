@@ -28,6 +28,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.naming.AuthenticationException;
@@ -131,7 +132,7 @@ public class UserService {
 
     // 회원 추가 가입(개인 정보 입력)
     @Transactional
-    public PostSignUpResponse signUp(UserInfoRequest userInfoRequest){
+    public PostSignUpResponse signUp(UserInfoRequest userInfoRequest, MultipartFile profileImage){
         Long userId = null;
 
         try {
@@ -148,13 +149,21 @@ public class UserService {
             new CustomException(Result.USERNAME_DUPLICATION);
         }
 
+        String profileImageUrl = null;
+
+        try {
+            profileImageUrl = s3UploadService.saveFile(profileImage, profileImage.getName() + UUID.randomUUID());
+        } catch (IOException e) {
+            new CustomException(Result.FILE_UPLOAD_FAIL);
+        }
+
         // 추가 정보 업데이트
         user.update(
             userId,
             userInfoRequest.getNickname(),
             userInfoRequest.getAddress(),
             userInfoRequest.getPhoneNumber(),
-            userInfoRequest.getProfileImageUrl(),
+            profileImageUrl,
             UserRole.SIGNUP_USER
         );
 
