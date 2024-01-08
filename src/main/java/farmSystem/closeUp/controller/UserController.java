@@ -39,8 +39,8 @@ public class UserController {
 
     // 크리에이터 회원가입
     @PostMapping(value = "/creator/sign-up")
-    public CommonResponse<PostSignUpResponse> signUpCreator(@RequestPart @Valid final PostCreatorInfoRequest postCreatorInfoRequest, @RequestPart List<MultipartFile> multipartFiles){
-        return CommonResponse.success(userService.signUpCreator(postCreatorInfoRequest, multipartFiles));
+    public CommonResponse<PostSignUpResponse> signUpCreator(@RequestPart @Valid final PostCreatorInfoRequest postCreatorInfoRequest, @RequestPart MultipartFile profileImage, @RequestPart MultipartFile verificationImage){
+        return CommonResponse.success(userService.signUpCreator(postCreatorInfoRequest, profileImage, verificationImage));
     }
 
     // 따라서 redis의 refreshToken과 전달받은 refreshToken 비교 후 일치한다면 accessToken, refreshToken 재발급
