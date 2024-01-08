@@ -16,15 +16,15 @@ public class Heart extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "heart_id")
-    private Long heardId;
+    private Long heartId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "guestbook_id")
     private GuestBook guestBook;
 
     @Builder
-    public Heart(Long heardId, GuestBook guestBook) {
-        this.heardId = heardId;
+    public Heart(Long heartId, GuestBook guestBook) {
+        this.heartId = heartId;
         this.guestBook = guestBook;
     }
 

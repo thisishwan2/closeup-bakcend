@@ -49,7 +49,7 @@ public class HeartService {
         heart.setGuestBook(guestBook);
         guestBook.setHeart(heart);
 
-        return PostHeartResponse.builder().heartId(heart.getHeardId()).build();
+        return PostHeartResponse.builder().heartId(heart.getHeartId()).build();
 
     }
 
@@ -66,7 +66,7 @@ public class HeartService {
         heartRepository.delete(heart);
 
         return DeleteHeartResponse.builder()
-                .heartId(heart.getHeardId())
+                .heartId(heart.getHeartId())
                 .build();
     }
 }

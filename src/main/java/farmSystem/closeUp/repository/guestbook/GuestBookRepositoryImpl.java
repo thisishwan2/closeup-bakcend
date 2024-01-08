@@ -32,7 +32,7 @@ public class GuestBookRepositoryImpl implements GuestBookRepositoryCustom {
 
 
         for(GuestBook findGuestBook : findGuestBooks) {
-            boolean isLiked = findGuestBook.getHeart() != null && findGuestBook.getHeart().getHeardId() != null;
+            boolean isLiked = findGuestBook.getHeart() != null && findGuestBook.getHeart().getHeartId() != null;
 
             result.add(GetGuestBooksResponse.of(findGuestBook.getGuestBookId(), findGuestBook.getUser().getUserId(), findGuestBook.getUser().getNickName(), findGuestBook.getUser().getProfileImageUrl(), findGuestBook.getCreatedAt(), findGuestBook.getContent(), isLiked));
         }
