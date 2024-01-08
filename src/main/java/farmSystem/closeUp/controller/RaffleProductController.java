@@ -73,9 +73,12 @@ public class RaffleProductController {
         return CommonResponse.success(raffleProductService.postRaffleProduct(raffleProductId));
     }
 
+    /*
+    크리에이터
+     */
     // 래플 생성하기
-    @PostMapping(value = "/creator/raffle-products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CommonResponse<PostCreateRaffleProductResponse> postCreateRaffleProduct(@RequestParam(value="thumbnailImage") MultipartFile thumbnailImage, @Valid final PostCreateRaffleProductRequest postCreateRaffleProductRequest) throws IOException {
-        return CommonResponse.success(raffleProductService.postCreateRaffleProduct(thumbnailImage, postCreateRaffleProductRequest));
+    @PostMapping(value = "/creator/raffle-products")
+    public CommonResponse<PostCreateRaffleProductResponse> postCreateRaffleProduct(@RequestPart(value="thumbnailImage") MultipartFile thumbnailImage, @RequestPart(value = "attachedFile", required = false) MultipartFile attachedFile, @Valid final PostCreateRaffleProductRequest postCreateRaffleProductRequest) throws IOException {
+        return CommonResponse.success(raffleProductService.postCreateRaffleProduct(thumbnailImage, attachedFile, postCreateRaffleProductRequest));
     }
 }
