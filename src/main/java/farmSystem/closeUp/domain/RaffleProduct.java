@@ -45,6 +45,10 @@ public class RaffleProduct extends BaseEntity{
     @JoinColumn(name="category_id")
     private Category category;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="winningProduct_id")
+    private WinningProduct winningProduct;
+
     @Builder
     public RaffleProduct(Long raffleProductId, String title, LocalDate startDate, LocalDate endDate, String content, Long winnerCount, Long rafflePrice, String address, LocalDateTime winningDate, String thumbnailImageUrl, User creator, Category category) {
         this.raffleProductId = raffleProductId;
@@ -74,5 +78,9 @@ public class RaffleProduct extends BaseEntity{
         this.thumbnailImageUrl = thumbnailImageUrl;
         this.creator = creator;
         this.category = category;
+    }
+
+    public void setWinningProduct(WinningProduct winningProduct) {
+        this.winningProduct = winningProduct;
     }
 }
