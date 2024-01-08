@@ -187,9 +187,9 @@ public class RaffleProductService {
         // 카테고리 조회
         Category category = categoryRepository.findByCategoryId(postCreateRaffleProductRequest.getCategoryId()).orElseThrow(() -> new CustomException(Result.NOTFOUND_CATEGORY));
 
-        // 당첨자 발표 시간 구하기 - 래플 종료 일 정오 12시
+        // 당첨자 발표 시간 구하기 - 래플 종료 일 다음날 낮 12시
         LocalDate endDate = postCreateRaffleProductRequest.getEndDate();
-        LocalDateTime winningDate = LocalDateTime.of(endDate.getYear(), endDate.getMonth(), endDate.getDayOfMonth(), 12, 0, 0);
+        LocalDateTime winningDate = LocalDateTime.of(endDate.getYear(), endDate.getMonth(), endDate.getDayOfMonth()+1, 12, 0, 0);
 
         // 섬네일 이미지 s3에 저장
         String thumbnailImageUrl = null;
