@@ -165,7 +165,7 @@ public class UserService {
 
     @Transactional
     // 크리에이터 추가 가입
-    public PostSignUpResponse signUpCreator(PostCreatorInfoRequest postCreatorInfoRequest, List<MultipartFile> multipartFiles) {
+    public PostSignUpResponse signUpCreator(PostCreatorInfoRequest postCreatorInfoRequest, MultipartFile profileImage, MultipartFile verificationImage) {
         Long userId = null;
         try {
             userId = getCurrentUserId();
@@ -180,9 +180,6 @@ public class UserService {
         if(userRepository.existsByNickName(postCreatorInfoRequest.getNickname())){
             new CustomException(Result.USERNAME_DUPLICATION);
         }
-
-        MultipartFile profileImage = multipartFiles.get(1);
-        MultipartFile verificationImage = multipartFiles.get(2);
 
         String profileImageUrl = null;
         String verificationImageUrl = null;
