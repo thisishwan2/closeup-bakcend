@@ -75,7 +75,23 @@ INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, 
 VALUES ('라플3', '2023-11-01 12:00:00', '2023-11-29 12:00:00', '라플3 내용', 50, 4000, '서울시 강남구', '2023-12-07 13:00:00', 6);
 
 INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date, category_id)
-VALUES ('라플4', '2023-09-02 12:00:00', '2023-12-03 12:00:00', '라플4 내용', 20, 10000, '서울시 강남구', '2023-12-03 13:00:00', 8);
+VALUES ('라플4', '2023-09-02 12:00:00', '2023-12-31 12:00:00', '라플4 내용', 2, 10000, '서울시 강남구', '2023-12-03 13:00:00', 8);
+
+-- 래플 응모
+INSERT INTO raffle (winning_info, raffle_product_id, user_id)
+VALUES ('NONE', 4, 9);
+
+INSERT INTO raffle (winning_info, raffle_product_id, user_id)
+VALUES ('NONE', 4, 10);
+
+INSERT INTO raffle (winning_info, raffle_product_id, user_id)
+VALUES ('NONE', 4, 11);
+
+INSERT INTO raffle (winning_info, raffle_product_id, user_id)
+VALUES ('NONE', 4, 12);
+
+INSERT INTO raffle (winning_info, raffle_product_id, user_id)
+VALUES ('NONE', 4, 13);
 
 -- 래플 이미지
 INSERT INTO image (created_at, raffle_product_id, image_url, original_image_name, upload_image_name)

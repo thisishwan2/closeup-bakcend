@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,11 +22,11 @@ public class RaffleProduct extends BaseEntity{
 
     private String title;
 
-    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
-    private LocalDateTime startDate;
+    @DateTimeFormat(pattern = "yyyy.MM.dd")
+    private LocalDate startDate;
 
-    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
-    private LocalDateTime endDate;
+    @DateTimeFormat(pattern = "yyyy.MM.dd")
+    private LocalDate endDate;
 
     private String content;
     private Long winnerCount;
@@ -45,7 +46,22 @@ public class RaffleProduct extends BaseEntity{
     private Category category;
 
     @Builder
-    public RaffleProduct(Long raffleProductId, String title, LocalDateTime startDate, LocalDateTime endDate, String content, Long winnerCount, Long rafflePrice, String address, LocalDateTime winningDate, String thumbnailImageUrl, User creator, Category category) {
+    public RaffleProduct(Long raffleProductId, String title, LocalDate startDate, LocalDate endDate, String content, Long winnerCount, Long rafflePrice, String address, LocalDateTime winningDate, String thumbnailImageUrl, User creator, Category category) {
+        this.raffleProductId = raffleProductId;
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.content = content;
+        this.winnerCount = winnerCount;
+        this.rafflePrice = rafflePrice;
+        this.address = address;
+        this.winningDate = winningDate;
+        this.thumbnailImageUrl = thumbnailImageUrl;
+        this.creator = creator;
+        this.category = category;
+    }
+  
+    public RaffleProduct(Long raffleProductId, String title, LocalDate startDate, LocalDate endDate, String content, Long winnerCount, Long rafflePrice, String address, LocalDateTime winningDate, String thumbnailImageUrl) {
         this.raffleProductId = raffleProductId;
         this.title = title;
         this.startDate = startDate;

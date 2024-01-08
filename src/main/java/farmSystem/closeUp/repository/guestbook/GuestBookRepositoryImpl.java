@@ -30,8 +30,11 @@ public class GuestBookRepositoryImpl implements GuestBookRepositoryCustom {
 
         List<GetGuestBooksResponse> result = new ArrayList<>();
 
+
         for(GuestBook findGuestBook : findGuestBooks) {
-            result.add(GetGuestBooksResponse.of(findGuestBook.getGuestBookId(), findGuestBook.getUser().getUserId(), findGuestBook.getUser().getNickName(), findGuestBook.getUser().getProfileImageUrl(), findGuestBook.getCreatedAt(), findGuestBook.getContent()));
+            boolean isLiked = findGuestBook.getHeart() != null && findGuestBook.getHeart().getHeartId() != null;
+
+            result.add(GetGuestBooksResponse.of(findGuestBook.getGuestBookId(), findGuestBook.getUser().getUserId(), findGuestBook.getUser().getNickName(), findGuestBook.getUser().getProfileImageUrl(), findGuestBook.getCreatedAt(), findGuestBook.getContent(), isLiked));
         }
 
         return new SliceImpl<>(result, pageable, hasNextPage(result, pageable.getPageSize()));

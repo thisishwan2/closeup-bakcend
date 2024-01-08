@@ -3,6 +3,7 @@ package farmSystem.closeUp.dto.raffleProduct.response;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -11,8 +12,8 @@ public class GetRaffleProductResponse {
 
     private Long raffleProductId;
     private String raffleProductTitle;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String raffleProductContent;
     private Long winnerCount;
     private Long raffleProductPrice;
@@ -21,8 +22,8 @@ public class GetRaffleProductResponse {
     private String creatorName;
     private Long creatorId;
 
-    public static GetRaffleProductResponse of(Long raffleProductId, String raffleProductTitle, LocalDateTime startDate,
-                                               LocalDateTime endDate, String raffleProductContent, Long winnerCount,
+    public static GetRaffleProductResponse of(Long raffleProductId, String raffleProductTitle, LocalDate startDate,
+                                               LocalDate endDate, String raffleProductContent, Long winnerCount,
                                                Long raffleProductPrice, LocalDateTime winningDate, String raffleProductThumbnail,
                                                String creatorName, Long creatorId) {
         return GetRaffleProductResponse.builder()

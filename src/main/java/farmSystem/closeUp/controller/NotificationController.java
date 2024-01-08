@@ -1,15 +1,18 @@
 package farmSystem.closeUp.controller;
 
 import farmSystem.closeUp.common.CommonResponse;
+import farmSystem.closeUp.dto.notification.request.PatchNotificationRequest;
+import farmSystem.closeUp.dto.notification.request.PostNotificationRequest;
+import farmSystem.closeUp.dto.notification.response.DeleteNotificationResponse;
 import farmSystem.closeUp.dto.notification.response.GetNotificationsResponse;
+import farmSystem.closeUp.dto.notification.response.PatchNotificationResponse;
+import farmSystem.closeUp.dto.notification.response.PostNotificationResponse;
 import farmSystem.closeUp.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
@@ -18,9 +21,39 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    // 크리에이터 공지사항 조회(무한 스크롤)
+    // 크리에이터 공지사항 조회(무한 스크롤) - 유저
     @GetMapping("/user/{creatorId}/notifications")
     public CommonResponse<Slice<GetNotificationsResponse>> getNotifications(@PathVariable("creatorId") Long creatorId, Pageable pageable) {
         return CommonResponse.success(notificationService.getNotifications(creatorId, pageable));
     }
+
+    // 크리에이터 공지사항 조회(무한 스크롤) - 크리에이터
+    @GetMapping("/creator/{creatorId}/notifications")
+    public CommonResponse<Slice<GetNotificationsResponse>> getNotificationsCreator(@PathVariable("creatorId") Long creatorId, Pageable pageable) {
+        return CommonResponse.success(notificationService.getNotificationsCreator(creatorId, pageable));
+    }
+
+    // 크리에이터 공지사항 작성 - 크리에이터
+    @PostMapping("/creator/{creatorId}/notifications")
+    public CommonResponse<PostNotificationResponse>  postNotification (
+            @PathVariable("creatorId") Long creatorId,
+            @RequestBody PostNotificationRequest request) {
+        return CommonResponse.success(notificationService.postNotification(creatorId, request));
+    }
+
+    // 크리에이터 공지사항 삭제 - 크리에이터
+    @DeleteMapping("/creator/notifications/{notificationId}")
+    public CommonResponse<DeleteNotificationResponse> deleteNotification (
+            @PathVariable("notificationId") Long notificationId) {
+        return CommonResponse.success(notificationService.deleteNotification(notificationId));
+    }
+
+    // 크리에이터 공지사항 수정 - 크리에이터
+    @PatchMapping("/creator/notifications/{notificationId}")
+    public CommonResponse<PatchNotificationResponse> patchNotification (
+            @PathVariable("notificationId") Long notificationId,
+            @RequestBody PatchNotificationRequest request) {
+        return CommonResponse.success(notificationService.patchNotification(notificationId, request));
+    }
+
 }

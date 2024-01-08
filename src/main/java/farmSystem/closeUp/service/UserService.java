@@ -261,9 +261,10 @@ public class UserService {
                 postCreatorInfoRequest.getNickname(),
                 postCreatorInfoRequest.getAddress(),
                 postCreatorInfoRequest.getPhoneNumber(),
+                postCreatorInfoRequest.getProfileImageUrl(),
+                postCreatorInfoRequest.getProfileComment(),
                 postCreatorInfoRequest.getGender(),
                 postCreatorInfoRequest.getBirthday(),
-                postCreatorInfoRequest.getProfileComment(),
                 UserRole.SIGNUP_CREATOR
         );
         log.info("sign up");

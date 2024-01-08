@@ -14,8 +14,9 @@ public class GetGuestBooksResponse {
     private String guestBookUserProfileImageUrl;
     private LocalDateTime guestBookCreatedAt;
     private String guestBookContent;
+    private boolean guestBookIsLiked;
 
-    public static GetGuestBooksResponse of(Long guestBookId, Long guestBookUserId, String guestBookUserNickname, String guestBookUserProfileImageUrl, LocalDateTime guestBookCreatedAt, String guestBookContent) {
+    public static GetGuestBooksResponse of(Long guestBookId, Long guestBookUserId, String guestBookUserNickname, String guestBookUserProfileImageUrl, LocalDateTime guestBookCreatedAt, String guestBookContent, boolean guestBookIsLiked) {
         return GetGuestBooksResponse.builder()
                 .guestBookId(guestBookId)
                 .guestBookUserId(guestBookUserId)
@@ -23,6 +24,7 @@ public class GetGuestBooksResponse {
                 .guestBookUserProfileImageUrl(guestBookUserProfileImageUrl)
                 .guestBookCreatedAt(guestBookCreatedAt)
                 .guestBookContent(guestBookContent)
+                .guestBookIsLiked(guestBookIsLiked)
                 .build();
     }
 }
