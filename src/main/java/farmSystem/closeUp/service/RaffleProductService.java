@@ -184,12 +184,14 @@ public class RaffleProductService {
         // 현재 크리에이터 조회
         User user = userService.getCurrentUser();
 
+        log.info("category");
+        log.info(postCreateRaffleProductRequest.getCategoryId().toString());
         // 카테고리 조회
-        Category category = categoryRepository.findByCategoryId(postCreateRaffleProductRequest.getCategoryId()).orElseThrow(() -> new CustomException(Result.NOTFOUND_CATEGORY));
+        Category category = categoryRepository.findById(postCreateRaffleProductRequest.getCategoryId()).orElseThrow(() -> new CustomException(Result.NOTFOUND_CATEGORY));
 
         // 당첨자 발표 시간 구하기 - 래플 종료 일 다음날 낮 12시
         LocalDate endDate = postCreateRaffleProductRequest.getEndDate();
-        LocalDateTime winningDate = LocalDateTime.of(endDate.getYear(), endDate.getMonth(), endDate.getDayOfMonth()+1, 12, 0, 0);
+        LocalDateTime winningDate = endDate.plusDays(1).atTime(12, 0, 0);
 
         // 섬네일 이미지 s3에 저장
         String thumbnailImageUrl = null;
