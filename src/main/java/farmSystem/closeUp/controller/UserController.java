@@ -33,7 +33,7 @@ public class UserController {
 
     // 유저 회원가입
     @PostMapping(value = "/user/sign-up")
-    public CommonResponse<PostSignUpResponse> signUp(@RequestBody @Valid final UserInfoRequest userInfoRequest, @RequestPart MultipartFile profileImage){
+    public CommonResponse<PostSignUpResponse> signUp(@RequestPart @Valid final UserInfoRequest userInfoRequest, @RequestPart MultipartFile profileImage){
         return CommonResponse.success(userService.signUp(userInfoRequest, profileImage));
     }
 
