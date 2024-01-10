@@ -35,6 +35,7 @@ public class RaffleProduct extends BaseEntity{
     @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
     private LocalDateTime winningDate;
 
+    @Column(length = 20000)
     private String thumbnailImageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)

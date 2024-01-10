@@ -18,6 +18,7 @@ public class WinningProduct extends BaseEntity{
     // 무형의 경우(사진, 영상, 음성)
     private String uploadFileName;
     private String originalFileName;
+    @Column(length = 20000)
     private String fileUrl;
 
 
