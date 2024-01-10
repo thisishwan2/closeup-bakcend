@@ -55,14 +55,14 @@ INSERT INTO user (nick_name, password, address, phone_number, profile_image_url,
 VALUES ('최필환5', null, '동국대학교', '010-1234-5678', '카카오url', '최필환@example.com', 'USER', 'KAKAO', '1', 'male', '2000-06-17', 0, null, null ,NULL, '2023-07-02');
 
 -- 래플 카테고리 추가
-INSERT INTO category (parent_id, category_name) VALUES (NULL, '유형');
-INSERT INTO category (parent_id, category_name) VALUES (NULL, '무형');
-INSERT INTO category (parent_id, category_name) VALUES (1, '사진');
-INSERT INTO category (parent_id, category_name) VALUES (1, '영상');
-INSERT INTO category (parent_id, category_name) VALUES (1, '음성');
-INSERT INTO category (parent_id, category_name) VALUES (2, '손편지');
-INSERT INTO category (parent_id, category_name) VALUES (2, '굿즈');
-INSERT INTO category (parent_id, category_name) VALUES (2, '소장품');
+INSERT INTO category ( category_name) VALUES ( '유형');
+INSERT INTO category ( category_name) VALUES ( '무형');
+INSERT INTO category ( category_name) VALUES ( '사진');
+INSERT INTO category ( category_name) VALUES ( '영상');
+INSERT INTO category ( category_name) VALUES ( '음성');
+INSERT INTO category ( category_name) VALUES ( '손편지');
+INSERT INTO category ( category_name) VALUES ( '굿즈');
+INSERT INTO category ( category_name) VALUES ( '소장품');
 
 -- 래플 상품 추가
 INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date, category_id)
