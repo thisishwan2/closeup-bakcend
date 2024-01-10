@@ -164,7 +164,7 @@ public class UserService {
             userInfoRequest.getAddress(),
             userInfoRequest.getPhoneNumber(),
             profileImageUrl,
-            UserRole.SIGNUP_USER
+            UserRole.USER
         );
 
         log.info("유저 - 추가 가입 성공");
@@ -209,7 +209,7 @@ public class UserService {
                 profileImageUrl,
                 postCreatorInfoRequest.getProfileComment(),
                 verificationImageUrl,
-                UserRole.SIGNUP_CREATOR
+                UserRole.CREATOR
         );
         log.info("크리에이터 추가 가입 완료");
 
