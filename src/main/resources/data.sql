@@ -65,17 +65,17 @@ INSERT INTO category ( category_name) VALUES ( '굿즈');
 INSERT INTO category ( category_name) VALUES ( '소장품');
 
 -- 래플 상품 추가
-INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date, category_id)
-VALUES ('라플1', '2023-11-02 12:00:00', '2024-02-03 12:00:00', '라플1 내용', 100, 1000, '서울시 강남구', '2023-11-03 13:00:00', 3);
+INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date, category_id, created_at)
+VALUES ('라플1', '2023-11-02 12:00:00', '2024-02-03 12:00:00', '라플1 내용', 100, 1000, '서울시 강남구', '2023-11-03 13:00:00', 3, '2023-11-02');
 
-INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date,category_id)
-VALUES ('라플2', '2023-10-02 12:00:00', '2023-11-12 12:00:00', '라플2 내용', 10, 3000, '서울시 강남구', '2023-12-05 13:00:00', 4);
+INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date,category_id, created_at)
+VALUES ('라플2', '2023-10-02 12:00:00', '2023-11-12 12:00:00', '라플2 내용', 10, 3000, '서울시 강남구', '2023-12-05 13:00:00', 4, '2023-10-02');
 
-INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date, category_id)
-VALUES ('라플3', '2023-11-01 12:00:00', '2023-11-29 12:00:00', '라플3 내용', 50, 4000, '서울시 강남구', '2023-12-07 13:00:00', 6);
+INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date, category_id, created_at)
+VALUES ('라플3', '2023-11-01 12:00:00', '2023-11-29 12:00:00', '라플3 내용', 50, 4000, '서울시 강남구', '2023-12-07 13:00:00', 6, '2023-11-01');
 
-INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date, category_id)
-VALUES ('라플4', '2023-09-02 12:00:00', '2023-12-31 12:00:00', '라플4 내용', 2, 10000, '서울시 강남구', '2023-12-03 13:00:00', 8);
+INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date, category_id, created_at)
+VALUES ('라플4', '2023-09-02 12:00:00', '2023-12-31 12:00:00', '라플4 내용', 2, 10000, '서울시 강남구', '2023-12-03 13:00:00', 8, '2023-09-02');
 
 -- 래플 응모
 INSERT INTO raffle (winning_info, raffle_product_id, user_id)
