@@ -66,7 +66,7 @@ INSERT INTO category ( category_name) VALUES ( '소장품');
 
 -- 래플 상품 추가
 INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date, category_id)
-VALUES ('라플1', '2023-11-02 12:00:00', '2023-11-03 12:00:00', '라플1 내용', 100, 1000, '서울시 강남구', '2023-11-03 13:00:00', 3);
+VALUES ('라플1', '2023-11-02 12:00:00', '2024-02-03 12:00:00', '라플1 내용', 100, 1000, '서울시 강남구', '2023-11-03 13:00:00', 3);
 
 INSERT INTO raffle_product (title, start_date, end_date, content, winner_count, raffle_price, address, winning_date,category_id)
 VALUES ('라플2', '2023-10-02 12:00:00', '2023-11-12 12:00:00', '라플2 내용', 10, 3000, '서울시 강남구', '2023-12-05 13:00:00', 4);
