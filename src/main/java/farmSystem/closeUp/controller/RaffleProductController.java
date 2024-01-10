@@ -54,7 +54,7 @@ public class RaffleProductController {
      */
     // 래플 생성하기
     @PostMapping(value = "/creator/raffle-products")
-    public CommonResponse<PostCreateRaffleProductResponse> postCreateRaffleProduct(@RequestPart(value="thumbnailImage") MultipartFile thumbnailImage, @RequestPart(value = "attachedFile", required = false) MultipartFile attachedFile, @Valid final PostCreateRaffleProductRequest postCreateRaffleProductRequest) throws IOException {
+    public CommonResponse<PostCreateRaffleProductResponse> postCreateRaffleProduct(@RequestPart(value="thumbnailImage") MultipartFile thumbnailImage, @RequestPart(value = "attachedFile", required = false) MultipartFile attachedFile, @RequestPart PostCreateRaffleProductRequest postCreateRaffleProductRequest) throws IOException {
         return CommonResponse.success(raffleProductService.postCreateRaffleProduct(thumbnailImage, attachedFile, postCreateRaffleProductRequest));
     }
 
