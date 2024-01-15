@@ -37,7 +37,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
             // User의 Role이 GUEST일 경우 처음 요청한 회원이므로 회원가입 페이지로 리다이렉트
             if(oAuth2User.getUserRole() == UserRole.GUEST) {
-                targetUrl = "http://localhost:8080/login-success-test"; //추가 회원가입 url
+                targetUrl = "http://localhost:5173/usersignup"; //추가 회원가입 url
                 String redirectUrl = createToken(response, oAuth2User, targetUrl);
 
                 // 로그인 확인 페이지로 리다이렉트 시킨다.
