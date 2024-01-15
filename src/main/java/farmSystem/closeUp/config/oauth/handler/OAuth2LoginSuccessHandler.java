@@ -60,6 +60,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 //                log.info("크리에이터 플랫폼 및 이미지 검증 및 관심사 설정 페이지로 이동");
 //                getRedirectStrategy().sendRedirect(request, response, redirectUrl);
             }
+            else{
+                targetUrl = "http://localhost:5173/raffle"; //추가 회원가입 url
+                String redirectUrl = createToken(response, oAuth2User, targetUrl);
+                getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+            }
         } catch (Exception e) {
             throw e;
         }
